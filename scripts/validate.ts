@@ -11,10 +11,12 @@ import {
 } from "../src/content/unchecked-exception-v2";
 import {
   audioV3,
+  audioV3Interactive,
   beatsV3,
   contentV3,
   metadataV3,
   videoV3,
+  videoV3Interactive,
 } from "../src/content/unchecked-exception-v3";
 
 async function main() {
@@ -76,12 +78,15 @@ async function main() {
   }
   const serveUrl = await bundle({ entryPoint: "src/index.ts" });
   const compositions = await getCompositions(serveUrl);
-  assert.equal(compositions.length, 3);
-  for (const config of [video, videoV2, videoV3]) {
+  assert.equal(compositions.length, 4);
+  for (const config of [video, videoV2, videoV3, videoV3Interactive]) {
     const registered = compositions.find(
       (composition) => composition.id === config.id,
     );
-    assert(registered, "V1, V2 and V3 must actually be registered");
+    assert(
+      registered,
+      "V1, V2, V3 and interactive V3 must actually be registered",
+    );
     for (const key of ["width", "height", "fps", "durationInFrames"] as const)
       assert.equal(registered[key], config[key]);
   }
