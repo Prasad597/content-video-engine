@@ -1,0 +1,32 @@
+Will this code compile?
+
+Think about it.
+
+Yes... it compiles.
+
+But if b becomes zero at runtime...
+
+ArithmeticException.
+
+So why didn't the compiler force us to handle it?
+
+Because this is an unchecked exception.
+
+And the rule is actually very simple.
+
+The compiler does NOT force you to catch an unchecked exception,
+or declare it using throws.
+
+Let's see what happens here.
+
+getValue() returns zero.
+
+Ten divided by zero...
+
+ArithmeticException.
+
+Now remember this for your interview:
+
+RuntimeException and its subclasses are unchecked exceptions.
+
+No mandatory catch or throws.
