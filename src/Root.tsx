@@ -1,18 +1,31 @@
 import { Composition } from "remotion";
-import { Short } from "./Short";
-import { video } from "./content/unchecked-exception";
-import { ShortV2 } from "./ShortV2";
-import { videoV2 } from "./content/unchecked-exception-v2";
-import { ShortV3, ShortV3Interactive } from "./ShortV3";
-import {
-  videoV3,
-  videoV3Interactive,
-} from "./content/unchecked-exception-v3";
+import { noskipLearningChannel } from "../channels/noskip-learning";
+import { short001Content } from "../content/short-001/content";
+import { short002Content } from "../content/short-002/content";
+import { ShortRenderer } from "./engine/ShortEngine";
+
+const durationFromShort = (short: { scenes: { end: number }[] }) =>
+  Math.round(Math.max(...short.scenes.map((scene) => scene.end)) * 30);
+
 export const Root = () => (
   <>
-    <Composition {...videoV3} component={ShortV3} />
-    <Composition {...videoV3Interactive} component={ShortV3Interactive} />
-    <Composition {...videoV2} component={ShortV2} />
-    <Composition {...video} component={Short} />
+    <Composition
+      id="short-001"
+      component={ShortRenderer}
+      width={1080}
+      height={1920}
+      fps={30}
+      durationInFrames={durationFromShort(short001Content)}
+      defaultProps={{ short: short001Content, channel: noskipLearningChannel }}
+    />
+    <Composition
+      id="short-002"
+      component={ShortRenderer}
+      width={1080}
+      height={1920}
+      fps={30}
+      durationInFrames={durationFromShort(short002Content)}
+      defaultProps={{ short: short002Content, channel: noskipLearningChannel }}
+    />
   </>
 );
