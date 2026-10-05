@@ -3,6 +3,7 @@ import type { ChannelDefinition } from "../../src/engine/types";
 export const noskipLearningChannel: ChannelDefinition = {
   id: "noskip-learning",
   name: "NoSkipLearning",
+  mark: "NSL",
   tagline: "Understand it. Then move on.",
   theme: {
     ink: "#10191f",
@@ -13,3 +14,5 @@ export const noskipLearningChannel: ChannelDefinition = {
     red: "#ffad93",
   },
 };
+
+export default noskipLearningChannel;

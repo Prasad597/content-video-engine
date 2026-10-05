@@ -1,31 +1,63 @@
 import { Composition } from "remotion";
-import { noskipLearningChannel } from "../channels/noskip-learning";
-import { short001Content } from "../content/short-001/content";
-import { short002Content } from "../content/short-002/content";
-import { ShortRenderer } from "./engine/ShortEngine";
-
-const durationFromShort = (short: { scenes: { end: number }[] }) =>
-  Math.round(Math.max(...short.scenes.map((scene) => scene.end)) * 30);
-
+import { ShortEngine } from "./engine/ShortEngine";
+import { durationFrames, FPS } from "./engine/timeline";
+import {
+  validateChannel,
+  validateShortDefinition,
+} from "./engine/validateShort";
+import type { ChannelDefinition, ShortDefinition } from "./engine/types";
+// Webpack's context includes new content/channel folders without editing this file.
+declare const require: {
+  context(
+    path: string,
+    recursive: boolean,
+    filter: RegExp,
+  ): { keys(): string[]; (key: string): { default: unknown } };
+};
+const contentFiles = require.context(
+  "../content",
+  true,
+  /^\.\/[^/]+\/content\.ts$/,
+);
+const channelFiles = require.context(
+  "../channels",
+  true,
+  /^\.\/[^/]+\/index\.ts$/,
+);
+const channels = Object.fromEntries(
+  channelFiles.keys().map((key) => {
+    const channel = channelFiles(key).default as ChannelDefinition;
+    validateChannel(channel);
+    return [channel.id, channel];
+  }),
+);
+const shorts = contentFiles
+  .keys()
+  .sort()
+  .map((key) => contentFiles(key).default as ShortDefinition);
 export const Root = () => (
   <>
-    <Composition
-      id="short-001"
-      component={ShortRenderer}
-      width={1080}
-      height={1920}
-      fps={30}
-      durationInFrames={durationFromShort(short001Content)}
-      defaultProps={{ short: short001Content, channel: noskipLearningChannel }}
-    />
-    <Composition
-      id="short-002"
-      component={ShortRenderer}
-      width={1080}
-      height={1920}
-      fps={30}
-      durationInFrames={durationFromShort(short002Content)}
-      defaultProps={{ short: short002Content, channel: noskipLearningChannel }}
-    />
+    {shorts.map((short) => {
+      validateShortDefinition(short);
+      const channel = channels[short.channel];
+      if (!channel) throw new Error(`Unknown channel: ${short.channel}`);
+      return (
+        <Composition
+          key={short.id}
+          id={short.id}
+          component={ShortEngine}
+          width={1080}
+          height={1920}
+          fps={FPS}
+          durationInFrames={durationFrames(short)}
+          defaultProps={{ short, channel }}
+          calculateMetadata={({ props }) => {
+            validateShortDefinition(props.short);
+            validateChannel(props.channel);
+            return { durationInFrames: durationFrames(props.short) };
+          }}
+        />
+      );
+    })}
   </>
 );

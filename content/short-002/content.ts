@@ -35,9 +35,9 @@ export const short002Content: ShortDefinition = {
       end: 15,
       kicker: "STRING POOL",
       nodes: [
-        { label: "a", value: "\"Java\"" },
+        { label: "a", value: '"Java"' },
         { label: "pool" },
-        { label: "b", value: "\"Java\"" },
+        { label: "b", value: '"Java"' },
       ],
       note: "Literals may point to the same underlying String object.",
     },
@@ -63,10 +63,10 @@ export const short002Content: ShortDefinition = {
         'String a = "Java";',
         'String b = "Java";',
         'String c = new String("Java");',
-        '',
-        'a == b;     // true',
-        'a == c;     // false',
-        'a.equals(c); // true',
+        "",
+        "a == b;     // true",
+        "a == c;     // false",
+        "a.equals(c); // true",
       ],
       activeLine: 5,
     },
@@ -91,9 +91,31 @@ export const short002Content: ShortDefinition = {
     },
   ],
   captions: [
-    { startMs: 0, endMs: 2200, text: "Same text, but == can still be false.", emphasis: "false" },
-    { startMs: 5000, endMs: 8000, text: "== compares object references.", emphasis: "references" },
-    { startMs: 9000, endMs: 12000, text: "String literals can share the same pool object.", emphasis: "pool" },
-    { startMs: 20000, endMs: 23200, text: "a == c is false while equals() is true.", emphasis: "false" },
+    {
+      startMs: 0,
+      endMs: 2200,
+      text: "Same text, but == can still be false.",
+      emphasis: "false",
+    },
+    {
+      startMs: 5000,
+      endMs: 8000,
+      text: "== compares object references.",
+      emphasis: "references",
+    },
+    {
+      startMs: 9000,
+      endMs: 12000,
+      text: "String literals can share the same pool object.",
+      emphasis: "pool",
+    },
+    {
+      startMs: 20000,
+      endMs: 23200,
+      text: "a == c is false while equals() is true.",
+      emphasis: "false",
+    },
   ],
 };
+
+export default short002Content;

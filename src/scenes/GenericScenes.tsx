@@ -1,145 +1,345 @@
 import type { CSSProperties } from "react";
-import { Kicker, CodePanel, colors } from "../components";
-import type { ChannelDefinition, SceneDefinition } from "../engine/types";
+import { useCurrentFrame, useVideoConfig } from "remotion";
+import { Kicker, CodePanel, colors, Reveal } from "../components";
+import { frameToSeconds } from "../engine/timeline";
+import type { ChannelDefinition, SceneDefinition, Cue } from "../engine/types";
 import { ChannelSignature } from "../brand/BrandMark";
-
-const mono: CSSProperties = { fontFamily: "var(--mono)" };
 const card: CSSProperties = {
   border: `2px solid ${colors.line}`,
   borderRadius: 18,
-  background: "#152229",
-  padding: "25px 30px",
+  background: colors.ink,
+  padding: "24px 28px",
 };
-
-const titleStyle = (size = 78): CSSProperties => ({
-  fontSize: size,
+const title: CSSProperties = {
+  fontSize: 72,
   lineHeight: 1.12,
   fontWeight: 700,
   letterSpacing: -3,
   whiteSpace: "pre-line",
   margin: 0,
-});
+  overflowWrap: "break-word",
+};
+const note: CSSProperties = {
+  fontSize: 30,
+  lineHeight: 1.4,
+  color: colors.muted,
+  marginTop: 24,
+};
+const CueView = ({ cue }: { cue: Cue }) => (
+  <Reveal at={cue.at}>
+    <div
+      style={{
+        marginTop: 24,
+        fontSize: cue.size ?? 48,
+        lineHeight: 1.25,
+        fontWeight: 600,
+        color:
+          cue.tone === "alert"
+            ? colors.red
+            : cue.tone === "accent"
+              ? colors.accent
+              : colors.text,
+        whiteSpace: "pre-line",
+      }}
+    >
+      {cue.text}
+    </div>
+  </Reveal>
+);
 
-export const renderGenericScene = (scene: SceneDefinition, channel: ChannelDefinition) => {
-  const palette = { ...colors, ...channel.theme };
+export const GenericScene = ({
+  scene,
+  channel,
+}: {
+  scene: SceneDefinition;
+  channel: ChannelDefinition;
+}) => {
+  const t = frameToSeconds(useCurrentFrame(), useVideoConfig().fps);
   switch (scene.type) {
-    case "hook":
+    case "hook": {
+      const thinking = scene.countdown && t < scene.countdown.end;
       return (
         <>
-          <Kicker>{scene.kicker ?? "HOOK"}</Kicker>
-          <h1 style={{ ...titleStyle(), color: palette.text }}>{scene.title}</h1>
-          {scene.subtitle ? (
-            <div style={{ fontSize: 38, marginTop: 28, color: palette.muted }}>{scene.subtitle}</div>
-          ) : null}
+          <Kicker>{scene.kicker}</Kicker>
+          <h1 style={title}>{scene.title}</h1>
+          {scene.code && (
+            <div style={{ marginTop: 36 }}>
+              <CodePanel {...scene.code} />
+            </div>
+          )}
+          {scene.subtitle && <div style={note}>{scene.subtitle}</div>}
+          {scene.choices && (!scene.countdown || thinking) && (
+            <Reveal at={scene.countdown?.start ?? 0}>
+              <div style={{ marginTop: 28 }}>
+                {scene.choices.map((choice, i) => (
+                  <div
+                    key={i}
+                    style={{ ...card, fontSize: 34, marginBottom: 12 }}
+                  >
+                    <span style={{ color: colors.accent, marginRight: 20 }}>
+                      {String.fromCharCode(65 + i)}
+                    </span>
+                    {choice}
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          )}
+          {thinking && scene.countdown && (
+            <Reveal at={scene.countdown.start}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 20,
+                  alignItems: "center",
+                  marginTop: 20,
+                }}
+              >
+                <span style={{ fontSize: 38, color: colors.accent }}>
+                  {Math.max(
+                    1,
+                    Math.ceil(
+                      (scene.countdown.count * (scene.countdown.end - t)) /
+                        (scene.countdown.end - scene.countdown.start),
+                    ),
+                  )}
+                </span>
+                <div style={{ height: 4, flex: 1, background: colors.line }}>
+                  <div
+                    style={{
+                      height: 4,
+                      background: colors.accent,
+                      width: `${Math.max(0, Math.min(1, (scene.countdown.end - t) / (scene.countdown.end - scene.countdown.start))) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </Reveal>
+          )}
+          {scene.reveals?.map((cue, i) => (
+            <CueView key={i} cue={cue} />
+          ))}
         </>
       );
+    }
     case "explanation":
       return (
         <>
-          <Kicker>{scene.kicker ?? "EXPLANATION"}</Kicker>
-          <h2 style={{ ...titleStyle(72), color: palette.text }}>{scene.title}</h2>
-          <div style={{ marginTop: 42, display: "grid", gap: 18 }}>
-            {(scene.body ?? []).map((line) => (
-              <div key={line} style={{ fontSize: 36, color: palette.muted, lineHeight: 1.5 }}>
-                {line}
-              </div>
-            ))}
-          </div>
+          <Kicker>{scene.kicker}</Kicker>
+          {scene.question && t < scene.question.until ? (
+            <h2 style={title}>{scene.question.text}</h2>
+          ) : (
+            <>
+              <Reveal at={scene.titleAt ?? 0}>
+                <h2 style={{ ...title, color: colors.accent }}>
+                  {scene.title}
+                </h2>
+              </Reveal>
+              {scene.body?.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ ...note, fontSize: 40, color: colors.text }}
+                >
+                  {line}
+                </div>
+              ))}
+              {scene.reveals?.map((cue, i) => (
+                <CueView key={i} cue={cue} />
+              ))}
+            </>
+          )}
         </>
       );
-    case "code":
+    case "code": {
+      const step = scene.steps?.filter((step) => t >= step.at).at(-1);
       return (
         <>
-          <Kicker>{scene.kicker ?? "CODE"}</Kicker>
-          <CodePanel lines={scene.code} highlight={false} activeLine={scene.activeLine} />
-          {scene.successLabel ? (
-            <div style={{ marginTop: 24, fontSize: 34, color: palette.accent }}>{scene.successLabel}</div>
-          ) : null}
+          <Kicker>{scene.kicker}</Kicker>
+          {scene.title && (
+            <h2 style={{ ...title, fontSize: 66, marginBottom: 36 }}>
+              {scene.title}
+            </h2>
+          )}
+          <CodePanel
+            {...scene}
+            activeLine={step?.activeLine ?? scene.activeLine}
+            highlight={step?.highlight ?? scene.highlight}
+          />
+          {step?.values && (
+            <div style={{ display: "flex", gap: 18, marginTop: 28 }}>
+              {step.values.map((value, i) => (
+                <div
+                  key={i}
+                  style={{
+                    ...card,
+                    flex: 1,
+                    fontFamily: "var(--mono)",
+                    fontSize: 42,
+                  }}
+                >
+                  {value}
+                </div>
+              ))}
+            </div>
+          )}
+          {(step?.status || scene.successLabel) && (
+            <div style={note}>{step?.status ?? scene.successLabel}</div>
+          )}
+          {step?.result && <CueView cue={step.result} />}
         </>
       );
+    }
     case "diagram":
       return (
         <>
-          <Kicker>{scene.kicker ?? "DIAGRAM"}</Kicker>
-          <div style={{ display: "flex", gap: 18, justifyContent: "center", alignItems: "stretch" }}>
-            {scene.nodes.map((node, index) => (
-              <div key={`${scene.id}-${node.label}`} style={{ flex: 1 }}>
-                {index > 0 ? <div style={{ textAlign: "center", color: palette.muted, fontSize: 40, margin: "18px 0" }}>↓</div> : null}
+          <Kicker>{scene.kicker}</Kicker>
+          {scene.title && (
+            <h2 style={{ ...title, fontSize: 58, marginBottom: 30 }}>
+              {scene.title}
+            </h2>
+          )}
+          {scene.nodes.map((node, i) => (
+            <Reveal key={i} at={node.at ?? 0}>
+              {i > 0 && (
                 <div
                   style={{
-                    ...card,
-                    borderColor: index === 0 ? palette.accent : palette.line,
-                    background: index === 0 ? "#1c2d30" : "#152229",
+                    fontSize: 32,
+                    lineHeight: "48px",
                     textAlign: "center",
-                    fontSize: 34,
-                    minHeight: 110,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    ...mono,
+                    color: colors.muted,
                   }}
                 >
-                  {node.label}
-                  {node.value ? <div style={{ display: "block", fontSize: 21, color: palette.muted, marginTop: 10 }}>{node.value}</div> : null}
+                  ↓
                 </div>
+              )}
+              <div
+                style={{
+                  ...card,
+                  textAlign: "center",
+                  fontFamily: "var(--mono)",
+                  fontSize: 40,
+                  background: node.emphasis ? colors.accent : colors.ink,
+                  color: node.emphasis ? colors.ink : colors.text,
+                }}
+              >
+                {node.label}
+                {node.value && (
+                  <div style={{ fontSize: 30, marginTop: 10 }}>
+                    {node.value}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-          {scene.note ? <div style={{ marginTop: 28, color: palette.muted, fontSize: 27 }}>{scene.note}</div> : null}
+            </Reveal>
+          ))}
+          {scene.examples?.map((example, i) => (
+            <Reveal key={i} at={example.at}>
+              <div
+                style={{
+                  borderLeft: `3px solid ${colors.accent}`,
+                  padding: "12px 20px",
+                  fontFamily: "var(--mono)",
+                  fontSize: 37,
+                  marginTop: i === 0 ? 24 : 0,
+                }}
+              >
+                {example.label}
+              </div>
+            </Reveal>
+          ))}
+          {scene.note && (
+            <Reveal at={scene.noteAt ?? 0}>
+              <div style={{ ...note, fontSize: 26 }}>{scene.note}</div>
+            </Reveal>
+          )}
         </>
       );
     case "comparison":
       return (
         <>
-          <Kicker>{scene.kicker ?? "COMPARISON"}</Kicker>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
-            <div style={{ ...card, borderColor: palette.line }}>
-              <div style={{ fontSize: 25, letterSpacing: 3, color: palette.muted }}>{scene.leftLabel}</div>
-              <div style={{ marginTop: 16, fontSize: 52, ...mono, color: palette.text }}>{scene.leftValue}</div>
-            </div>
-            <div style={{ ...card, borderColor: palette.accent }}>
-              <div style={{ fontSize: 25, letterSpacing: 3, color: palette.muted }}>{scene.rightLabel}</div>
-              <div style={{ marginTop: 16, fontSize: 52, ...mono, color: palette.accent }}>{scene.rightValue}</div>
-            </div>
+          <Kicker>{scene.kicker}</Kicker>
+          {scene.title && (
+            <h2 style={{ ...title, marginBottom: 32 }}>{scene.title}</h2>
+          )}
+          <div style={{ display: "grid", gap: 22 }}>
+            {[
+              [scene.leftLabel, scene.leftValue],
+              [scene.rightLabel, scene.rightValue],
+            ].map(([label, value], i) => (
+              <div
+                key={i}
+                style={{
+                  ...card,
+                  borderColor: i ? colors.accent : colors.line,
+                }}
+              >
+                <div style={{ fontSize: 28, color: colors.muted }}>{label}</div>
+                <div
+                  style={{
+                    fontSize: 48,
+                    lineHeight: 1.3,
+                    marginTop: 12,
+                    overflowWrap: "break-word",
+                  }}
+                >
+                  {value}
+                </div>
+              </div>
+            ))}
           </div>
-          {scene.note ? <div style={{ marginTop: 28, color: palette.muted, fontSize: 28 }}>{scene.note}</div> : null}
+          {scene.note && <div style={note}>{scene.note}</div>}
         </>
       );
     case "rule":
       return (
         <>
-          <Kicker>{scene.kicker ?? "RULE"}</Kicker>
-          <div style={{ ...card, borderColor: palette.accent, padding: "38px 24px", textAlign: "center" }}>
-            {scene.rows.map((row, index) => (
-              <div
-                key={`${scene.id}-${row}`}
-                style={{
-                  fontSize: index === scene.rows.length - 1 ? 76 : index % 2 === 1 ? 52 : 58,
-                  lineHeight: 1.45,
-                  fontWeight: index === scene.rows.length - 1 ? 700 : 600,
-                  color: index === scene.rows.length - 1 || index % 2 === 1 ? palette.accent : palette.text,
-                  letterSpacing: -2,
-                }}
-              >
-                {row}
-              </div>
+          <Kicker>{scene.kicker ?? scene.title}</Kicker>
+          <div style={{ ...card, textAlign: "center", padding: "35px 20px" }}>
+            {scene.rows.map((row, i) => (
+              <Reveal key={i} at={scene.rowTimes?.[i] ?? 0}>
+                <div
+                  style={{
+                    fontSize: i === scene.rows.length - 1 ? 64 : 52,
+                    lineHeight: 1.5,
+                    fontWeight: 600,
+                    color:
+                      i === scene.rows.length - 1 ? colors.accent : colors.text,
+                    overflowWrap: "break-word",
+                  }}
+                >
+                  {row}
+                </div>
+              </Reveal>
             ))}
           </div>
-          {scene.note ? <div style={{ marginTop: 26, fontSize: 28, color: palette.muted }}>{scene.note}</div> : null}
+          {scene.note && (
+            <Reveal at={scene.noteAt ?? 0}>
+              <div
+                style={{
+                  ...note,
+                  fontSize: 38,
+                  textAlign: "center",
+                  color: colors.text,
+                }}
+              >
+                {scene.note}
+              </div>
+            </Reveal>
+          )}
+          {scene.signatureAt !== undefined && (
+            <Reveal at={scene.signatureAt}>
+              <ChannelSignature channel={channel} />
+            </Reveal>
+          )}
         </>
       );
     case "outro":
       return (
         <>
-          <Kicker>{scene.kicker ?? "OUTRO"}</Kicker>
-          <h2 style={{ ...titleStyle(72), color: palette.text }}>{scene.title}</h2>
-          {scene.subtitle ? <div style={{ marginTop: 30, fontSize: 36, color: palette.muted }}>{scene.subtitle}</div> : null}
-          <div style={{ marginTop: 56 }}>
-            <ChannelSignature name={channel.name} tagline={channel.tagline} />
-          </div>
+          <Kicker>{scene.kicker}</Kicker>
+          <h2 style={title}>{scene.title}</h2>
+          {scene.subtitle && <div style={note}>{scene.subtitle}</div>}
+          <ChannelSignature channel={channel} />
         </>
       );
-    default:
-      return null;
   }
 };

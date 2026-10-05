@@ -1,7 +1,11 @@
 node_modules/
-out/
+.tmp/
 .cache/
 *.log
 public/audio/*
 !public/audio/.gitkeep
 .env*
+content/*/audio/
+content/*/recordings/
+content/*/output/*
+!content/*/output/.gitkeep

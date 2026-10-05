@@ -1,11 +1,11 @@
-# Owner's English voice — Short JAVA-001
+# Recording and timing
 
-**Pending: OWNER'S REAL ENGLISH NARRATION.** The current MP4 is a silent visual preview, not the final upload artifact.
+Each Short owns its narration text in `content/<id>/script.txt`, semantic timestamps and audio path in its content folder. Record clean mono PCM WAV (48 kHz, 16/24-bit), preserve the original, then apply chosen cleanup, pacing edits and loudness normalization externally. Do not bake music/SFX into narration. No enhancement provider is hard-coded.
 
-1. Read `scripts/narration-v3-en.txt`; it contains spoken words only. Use warm, conversational teacher delivery: curious question, brief thinking pause, confident reveal, slower emphasis on “NOT” and the final rule. Speak Java names naturally; don't read punctuation or parentheses aloud.
-2. Record mono PCM WAV, preferably 48 kHz / 24-bit, in a quiet room at a consistent microphone distance. Leave headroom, avoid clipping, and keep an untouched original. Temporarily store takes in `out/recordings/raw/` (already Git-ignored); back them up outside this generated-output folder before clearing `out/`.
-3. Workflow: raw recording → speech cleanup/enhancement → pacing edits → loudness normalization → processed WAV. Check noise, plosives, pronunciation and unnatural enhancement artifacts by ear. Normalize consistently without clipping; leave true-peak headroom. A cleanup/AI enhancement provider is intentionally not selected or hard-coded.
-4. Export the clean processed narration as `public/audio/narration-v3-en.wav` (PCM WAV, 48 kHz, 16- or 24-bit). **No music or SFX baked into this file.** Audio under `public/audio/` is already ignored by Git.
-5. Restart Studio or re-render. Remotion finds the exact filename in its public-file manifest and starts it at time zero. If absent, it mounts no narration track and renders silently. Narration, SFX and music retain independent gains; music is muted by default. Missing SFX are skipped.
-6. **The real recording is the timing authority. Do not speed it up merely to fit 39 seconds.** The current scene/caption/beat timing is provisional and is not aligned to this unrecorded script. Adjust `scenesV3`, `beatsV3` and caption millisecond cues in `src/content/unchecked-exception-v3.ts` to the processed voice. Duration follows the final scene; SFX timings follow their scene starts and beats. Keep the full narration inside the composition: longer audio is otherwise cut off at its end. Captions are selective English phrase cues, not a complete transcript. No automatic alignment is implemented.
-7. Listen to the complete mix and check lip-free narration/visual timing, natural pauses, readable caption holds, and narration dominance on a phone. Then create a separately named FINAL artifact; preserve the visual previews. No final voice, enhancement, synchronization or release approval is implied by today's preview.
+Use `content/<id>/audio/narration.mp3` by default, or change the definition to a WAV filename. Audio and raw recordings under each content folder are Git-ignored. Keep backups. Short 001's existing English master is copied to `content/short-001/audio/narration.wav`; source recordings remain preserved.
+
+Scene start/end and captions follow the approved real recording. Scene-local reveals/countdown/steps/node/row times are also content data. The engine centrally converts seconds to frames. There is no speech recognition or automatic alignment. Check that the last scene covers the full narration: audio beyond the composition end is truncated.
+
+The render and Studio commands stage only referenced local files with exact paths. Restart Studio after adding/changing an audio file. Missing audio renders silently; the render command reports it in the terminal, never in the video. A path typo must be fixed, not substituted with another Short's same-named file.
+
+Independent narration, music and effect gains are optional content settings. The canonical MP4 is `content/<id>/output/<id>.mp4`. Listen to the complete output on a phone, checking caption timing, safe areas and voice dominance before publishing.

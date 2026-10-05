@@ -1,47 +1,65 @@
-import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { short001Content } from "../content/short-001/content";
-import { short002Content } from "../content/short-002/content";
-
-const args = process.argv.slice(2);
-const getArg = (name: string) => {
-  const index = args.indexOf(name);
-  if (index === -1 || index === args.length - 1) return undefined;
-  return args[index + 1];
-};
-
-const contentId = getArg("--content") ?? "short-001";
-const channel = getArg("--channel") ?? "noskip-learning";
-
-const library = {
-  "short-001": { short: short001Content, output: "out/short-001.mp4" },
-  "short-002": { short: short002Content, output: "out/short-002.mp4" },
-} as const;
-
-const selected = library[contentId as keyof typeof library];
-if (!selected) {
-  throw new Error(`Unknown content id: ${contentId}. Available: ${Object.keys(library).join(", ")}`);
+import { existsSync, mkdtempSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { openBrowser, selectComposition, renderMedia } from "@remotion/renderer";
+import {
+  args,
+  root,
+  loadContentPackage,
+  prepareOutput,
+  loadChannel,
+  resolveAudio,
+  stageAssets,
+  bundleShorts,
+} from "./project";
+import { cleanupStage } from "./project";
+async function main() {
+  const options = args(["content", "channel"]);
+  if (!options.content) throw new Error("Use --content <folder-id>");
+  const content = await loadContentPackage(options.content);
+  const { short } = content;
+  const channel = await loadChannel(options.channel ?? short.channel);
+  const narration = resolveAudio(short.narration);
+  if (!existsSync(narration))
+    console.warn(`Silent preview: missing ${short.narration}`);
+  mkdirSync(join(root, ".tmp"), { recursive: true });
+  const stage = mkdtempSync(join(root, ".tmp", "render-assets-"));
+  const browser = await openBrowser('chrome');
+  try {
+    const serveUrl = await bundleShorts(stageAssets([short], stage));
+    const inputProps = { short, channel };
+    const composition = await selectComposition({
+      serveUrl,
+      id: short.id,
+      inputProps,
+      puppeteerInstance: browser,
+    });
+    const outputLocation = prepareOutput(content);
+    console.log(`Rendering ${short.id} -> ${outputLocation}`);
+    let reported = -1;
+    await renderMedia({
+      serveUrl,
+      composition,
+      inputProps,
+      codec: "h264",
+      crf: 18,
+      concurrency: 2,
+      puppeteerInstance: browser,
+      onProgress: ({progress}) => {
+        const quarter = Math.floor(progress * 4);
+        if (quarter > reported) {
+          reported = quarter;
+          console.log(`Render progress: ${quarter * 25}%`);
+        }
+      },
+      outputLocation,
+    });
+    console.log(`Rendered ${outputLocation}`);
+  } finally {
+    await browser.close({silent: true});
+    cleanupStage(stage);
+  }
 }
-
-const narrationPath = selected.short.narration;
-const resolvedNarration = resolve(process.cwd(), narrationPath);
-const message = `Missing narration file for ${contentId}: ${narrationPath}`;
-
-if (!existsSync(resolvedNarration)) {
-  console.warn(`WARNING: ${message}`);
-}
-
-if (channel !== "noskip-learning") {
-  console.warn(`WARNING: channel ${channel} is not configured yet; using the default NoSkipLearning channel.`);
-}
-
-const compositionId = contentId;
-const outputPath = selected.output;
-console.log(`Rendering ${compositionId} -> ${outputPath}`);
-
-execSync(
-  `npx remotion render src/index.ts ${compositionId} ${outputPath} --codec=h264 --crf=18`,
-  { stdio: "inherit" },
-);
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

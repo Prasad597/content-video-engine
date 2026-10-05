@@ -4,12 +4,12 @@
   "private": true,
   "description": "Reusable audio-first content video engine for Shorts",
   "scripts": {
-    "dev": "remotion studio src/index.ts",
-    "render": "tsx scripts/render-short.ts --content short-001 --channel noskip-learning",
-    "render-short": "tsx scripts/render-short.ts",
-    "new-short": "tsx scripts/new-short.ts",
+    "dev": "tsx -- scripts/studio.ts",
+    "render": "tsx -- scripts/render-short.ts --content short-001 --channel noskip-learning",
+    "render-short": "tsx -- scripts/render-short.ts",
+    "new-short": "tsx -- scripts/new-short.ts",
     "typecheck": "tsc --noEmit",
-    "validate": "tsx scripts/validate.ts"
+    "validate": "tsx -- scripts/validate.ts"
   },
   "engines": {
     "node": ">=22"

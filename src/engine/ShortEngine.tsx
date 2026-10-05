@@ -9,27 +9,9 @@ import {
 import { getStaticFiles } from "@remotion/studio";
 import { Caption } from "../components";
 import { BrandWatermark } from "../brand/BrandMark";
-import { renderGenericScene } from "../scenes/GenericScenes";
+import { GenericScene } from "../scenes/GenericScenes";
 import type { ChannelDefinition, ShortDefinition } from "./types";
-import { sceneDuration, sceneStart } from "./timeline";
-
-const progressBar: CSSProperties = {
-  position: "absolute",
-  left: 78,
-  right: 180,
-  top: 1620,
-  height: 4,
-  background: "#334149",
-};
-
-export const ShortRenderer = ({
-  short,
-  channel,
-}: {
-  short: ShortDefinition;
-  channel: ChannelDefinition;
-}) => <ShortEngine short={short} channel={channel} />;
-
+import { sceneDuration, sceneStart, secondsToFrames } from "./timeline";
 export const ShortEngine = ({
   short,
   channel,
@@ -40,76 +22,71 @@ export const ShortEngine = ({
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
   const files = getStaticFiles();
-
-  const narrationPath = short.narration;
-  const narrationName = narrationPath.split("/").pop();
-  const narrationFile = files.find(
-    (file) => file.name === narrationPath || file.name.endsWith(`/${narrationName}`) || file.name === narrationName,
-  )?.src;
-
-  const duration = Math.max(
-    ...short.scenes.map((scene) => scene.end),
-    1,
-  );
-
+  const asset = (name: string) => files.find((file) => file.name === name)?.src;
+  const narration = asset(short.narration);
+  const music = short.audio?.music;
+  const style = {
+    ...Object.fromEntries(
+      Object.entries(channel.theme).map(([key, value]) => [`--${key}`, value]),
+    ),
+    background: channel.theme.ink,
+    color: channel.theme.text,
+    fontFamily: "var(--sans)",
+  } as CSSProperties;
   return (
-    <AbsoluteFill
-      style={{
-        background: channel.theme.ink,
-        color: channel.theme.text,
-        fontFamily: "var(--sans)",
-      }}
-    >
-      <BrandWatermark name={channel.name} />
+    <AbsoluteFill style={style}>
+      <BrandWatermark channel={channel} />
       {short.scenes.map((scene) => (
         <Sequence
           key={scene.id}
+          name={scene.id}
           from={sceneStart(scene, fps)}
           durationInFrames={sceneDuration(scene, fps)}
-          name={scene.id}
         >
-          <div style={{ position: "absolute", left: 78, right: 180, top: 280 }}>
-            {renderGenericScene(scene, channel)}
+          <div style={{ position: "absolute", left: 78, right: 180, top: 270 }}>
+            <GenericScene scene={scene} channel={channel} />
           </div>
         </Sequence>
       ))}
-
-      {short.captions && short.captions.length > 0 ? <Caption cues={short.captions} compact /> : null}
-
-      {!narrationFile ? (
-        <div
-          style={{
-            position: "absolute",
-            left: 78,
-            right: 78,
-            bottom: 180,
-            border: `1px solid ${channel.theme.line}`,
-            borderRadius: 12,
-            padding: "18px 20px",
-            background: "rgba(16,25,31,0.82)",
-            color: channel.theme.text,
-            fontSize: 28,
-            textAlign: "center",
-          }}
-        >
-          Missing narration: place the final audio at <strong>{narrationPath}</strong>.
-        </div>
-      ) : (
-        <Html5Audio src={narrationFile} volume={1} />
+      <Caption cues={short.captions ?? []} />
+      {narration && (
+        <Html5Audio
+          src={narration}
+          volume={short.audio?.narrationVolume ?? 1}
+        />
       )}
-
-      <div style={progressBar}>
+      {music && music.volume > 0 && asset(music.file) && (
+        <Html5Audio src={asset(music.file)!} volume={music.volume} loop />
+      )}
+      {short.audio?.effects?.map((effect, i) =>
+        asset(effect.file) ? (
+          <Sequence
+            key={i}
+            from={secondsToFrames(effect.at, fps)}
+            durationInFrames={secondsToFrames(effect.duration, fps)}
+          >
+            <Html5Audio src={asset(effect.file)!} volume={effect.volume} />
+          </Sequence>
+        ) : null,
+      )}
+      <div
+        style={{
+          position: "absolute",
+          left: 78,
+          right: 180,
+          top: 1620,
+          height: 4,
+          background: channel.theme.line,
+        }}
+      >
         <div
           style={{
             height: 4,
             background: channel.theme.accent,
-            width: `${(100 * frame) / (durationInFrames - 1)}%`,
+            width: `${(100 * frame) / Math.max(1, durationInFrames - 1)}%`,
           }}
         />
       </div>
     </AbsoluteFill>
   );
 };
-
-export const getShortDurationSeconds = (short: ShortDefinition) =>
-  Math.max(...short.scenes.map((scene) => scene.end), 1);
