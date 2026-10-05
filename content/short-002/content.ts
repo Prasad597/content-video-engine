@@ -11,7 +11,7 @@ export const short002Content: ShortDefinition = {
       id: "hook",
       type: "hook",
       start: 0,
-      end: 4,
+      end: 7.8,
       kicker: "JAVA INTERVIEW",
       title: "SAME TEXT\nBUT == CAN BE FALSE",
       subtitle: "Reference identity is not the same as logical equality.",
@@ -19,8 +19,8 @@ export const short002Content: ShortDefinition = {
     {
       id: "concept",
       type: "explanation",
-      start: 4,
-      end: 9,
+      start: 7.8,
+      end: 16,
       kicker: "CORE IDEA",
       title: "Identity vs logical equality",
       body: [
@@ -31,8 +31,8 @@ export const short002Content: ShortDefinition = {
     {
       id: "diagram",
       type: "diagram",
-      start: 9,
-      end: 15,
+      start: 16,
+      end: 26.0,
       kicker: "STRING POOL",
       nodes: [
         { label: "a", value: '"Java"' },
@@ -44,8 +44,8 @@ export const short002Content: ShortDefinition = {
     {
       id: "comparison",
       type: "comparison",
-      start: 15,
-      end: 20,
+      start: 26.0,
+      end: 33.0,
       kicker: "RESULT",
       leftLabel: "==",
       leftValue: "reference identity",
@@ -56,8 +56,8 @@ export const short002Content: ShortDefinition = {
     {
       id: "code",
       type: "code",
-      start: 20,
-      end: 25,
+      start: 33.0,
+      end: 40.5,
       kicker: "CODE",
       code: [
         'String a = "Java";',
@@ -73,8 +73,8 @@ export const short002Content: ShortDefinition = {
     {
       id: "rule",
       type: "rule",
-      start: 25,
-      end: 32,
+      start: 40.5,
+      end: 49.5,
       kicker: "RULE",
       title: "Interview rule",
       rows: ["==", "IDENTITY", "equals()", "LOGICAL EQUALITY"],
@@ -83,8 +83,8 @@ export const short002Content: ShortDefinition = {
     {
       id: "outro",
       type: "outro",
-      start: 32,
-      end: 35,
+      start: 49.5,
+      end: 54.595875,
       kicker: "OUTRO",
       title: "Object references and class-defined equality.",
       subtitle: "String is a special case with value-based equals().",
@@ -93,25 +93,25 @@ export const short002Content: ShortDefinition = {
   captions: [
     {
       startMs: 0,
-      endMs: 2200,
+      endMs: 2600,
       text: "Same text, but == can still be false.",
       emphasis: "false",
     },
     {
-      startMs: 5000,
-      endMs: 8000,
+      startMs: 7500,
+      endMs: 10500,
       text: "== compares object references.",
       emphasis: "references",
     },
     {
-      startMs: 9000,
-      endMs: 12000,
+      startMs: 15500,
+      endMs: 20200,
       text: "String literals can share the same pool object.",
       emphasis: "pool",
     },
     {
-      startMs: 20000,
-      endMs: 23200,
+      startMs: 25500,
+      endMs: 29200,
       text: "a == c is false while equals() is true.",
       emphasis: "false",
     },
