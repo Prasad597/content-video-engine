@@ -1,0 +1,26 @@
+[MYTH]
+Two different HashMap keys return the same hashCode.
+
+Same hash means same key... right?
+
+[BREAK]
+Wrong.
+
+Both keys can still exist in the HashMap.
+
+[BUCKET]
+The hashCode helps HashMap find the bucket.
+
+Different keys can land in that same bucket.
+
+[KEY_CHECK]
+Then equals checks which key is actually yours.
+
+[RULE]
+So remember:
+
+Same hash does not mean same key.
+
+hashCode finds the bucket.
+
+equals finds the key.

@@ -26,7 +26,7 @@ async function main() {
   writeFileSync(join(target, "script.txt"), "", { flag: "wx" });
   writeFileSync(join(target, "content.ts"), template, { flag: "wx" });
   console.log(
-    `Created content/${id}/ with content.ts, script.txt, audio/, assets/, output/. Edit the content and script, add audio/narration.mp3, then run npm.cmd run render-short -- --content ${id}. Result: content/${id}/output/${id}.mp4`,
+    `Created content/${id}/ with content.ts, script.txt, audio/, assets/, output/.\n1. Edit script.txt with semantic markers.\n2. npm.cmd run prepare-short -- --content ${id}\n3. Author content.ts using the measured beats.\n4. npm.cmd run produce-short -- --content ${id}\nResult: content/${id}/output/${id}.mp4\nManual narration and the existing align-short/render-short commands remain supported.`,
   );
 }
 main().catch((error) => {

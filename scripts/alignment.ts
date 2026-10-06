@@ -11,7 +11,7 @@ export type BeatFile = Omit<AlignmentResult, "words"> & {
 export const hash = (input: string | Buffer) => createHash("sha256").update(input).digest("hex");
 export const tokens = (text: string) =>
   text.normalize("NFKC").toLowerCase().replace(/[’']/g, "").match(/[\p{L}\p{N}]+/gu) ?? [];
-export function parseScript(script: string) {
+export function parseScript(script: string, minimumSectionWords = 3) {
   const sections: { id: string; text: string; words: string[] }[] = [];
   // ALL_CAPS identifiers are ours. Lowercase delivery directions are unspoken.
   const parts = script.split(/(\[[^\]\r\n]+\])/g);
@@ -32,7 +32,7 @@ export function parseScript(script: string) {
   if (!sections.length) throw new Error("No semantic markers in script.txt");
   sections.forEach((s) => {
     s.words = tokens(s.text);
-    if (s.words.length < 3) throw new Error(`Semantic beat ${s.id} needs at least three spoken words`);
+    if (s.words.length < minimumSectionWords) throw new Error(`Semantic beat ${s.id} needs at least ${minimumSectionWords} spoken words`);
   });
   const normalized = sections.map(({ id, words }) => `[${id}] ${words.join(" ")}`).join("\n");
   return { sections, normalized, scriptHash: hash(normalized), text: sections.map((s) => s.words.join(" ")).join(" ") };

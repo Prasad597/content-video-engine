@@ -8,6 +8,8 @@ Node.js 22+ and npm. Install with `npm ci`, then `npm run dev`. Studio automatic
 
 ## New Short (Windows PowerShell)
 
+For the automated V1 workflow (`script → prepare-short → author content.ts → produce-short`), see [production setup and credit protection](docs/PRODUCTION.md). The manual workflow below remains supported.
+
 ```powershell
 npm.cmd run new-short -- --id short-003 --channel noskip-learning
 ```
@@ -55,4 +57,4 @@ npm run validate
 
 Validation discovers all content, resolves channels, rejects malformed paths/timings, checks fractional-frame boundaries and semantic/stale-file rules, registers every composition in the browser, renders a representative frame of every scene, and encodes a silent template smoke MP4. Numeric previews still allow missing narration; semantic packages require their authoritative audio and current alignment. A full Short render uses `render-short` above. Generated outputs/audio/raw recordings remain Git-ignored; scripts, beats and optional assets are trackable. Empty assets/output folders use `.gitkeep`; ignored audio folders are created by scaffolding. Temporary validation and staging artifacts use `.tmp/`, never the canonical production destination. Alignment dependencies are isolated in tools/alignment/.venv; no new Node dependencies or credentials.
 
-`docs/CONSOLIDATION.md` records the original import audit, migration decisions and retained owner files. Source is intentionally one engine: no historical specialized implementations, backend, platform, TTS or automatic publishing.
+`docs/CONSOLIDATION.md` records the original import audit, migration decisions and retained owner files. Source is intentionally one engine with an isolated production TTS adapter: no historical specialized implementations, backend, platform or automatic publishing.

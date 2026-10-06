@@ -5,6 +5,11 @@ node_modules/
 public/audio/*
 !public/audio/.gitkeep
 .env*
+!.env.example
+content/*/generated/narration.json
+content/*/generated/narration.lock
+content/*/generated/narration.pending.json
+content/*/generated/.narration-*.json
 content/*/audio/
 content/*/recordings/
 content/*/output/*
