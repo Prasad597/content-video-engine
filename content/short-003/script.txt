@@ -1,0 +1,29 @@
+[HOOK]
+[curious] You put an object into a HashMap… but later, `get()` returns null. How is that possible?
+
+[SETUP]
+[engaging] Look at this key. Its `id` is one.
+
+[CODE_INSERT]
+[explanatory] We put that key into the HashMap with the value, Java.
+
+[HASH_LOOKUP]
+[explanatory] HashMap uses the key's `hashCode()` to determine where to look for the entry.
+
+[MUTATION]
+[serious] But after inserting it, we change the same key's `id` from one to two.
+
+[HASH_CHANGED]
+[dramatic] Now its `hashCode()` can change.
+
+[LOOKUP_FAILS]
+[curious] So when we call `map.get(key)` again, HashMap looks using the new hash… and may not find the entry stored using the old hash.
+
+[RESULT]
+[emphatic] The entry can still be inside the map, but lookup using that mutated key can fail.
+
+[FINAL_RULE]
+[confident] That's why HashMap keys should be immutable, especially the fields used by `equals()` and `hashCode()`.
+
+[INTERVIEW_RULE]
+[slowly] Interview rule: never mutate fields that participate in a HashMap key's equality or hash calculation while that key is stored in the map.

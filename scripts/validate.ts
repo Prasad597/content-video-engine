@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { validateAlignmentPipeline } from "./validate-alignment";
 import { mkdtempSync, mkdirSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -34,6 +35,7 @@ import {
 import type { ShortDefinition } from "../src/engine/types";
 
 async function main() {
+  validateAlignmentPipeline(root);
   const ids = listContent();
   const packages = await Promise.all(ids.map(loadContentPackage));
   const shorts = packages.map((content) => content.short);

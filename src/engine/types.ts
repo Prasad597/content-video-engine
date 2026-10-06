@@ -121,3 +121,21 @@ export type ShortDefinition = {
     effects?: { file: string; at: number; duration: number; volume: number }[];
   };
 };
+
+// Authored timing is resolved before the existing numeric rendering boundary.
+export type SemanticTiming = {
+  from: string;
+  until?: string; // next beat's start; omitted means from beat's end
+  leadMs?: number;
+  tailMs?: number;
+};
+type AuthoredScene<T> = T extends SceneDefinition
+  ? T | (Omit<T, "start" | "end"> & { timing: SemanticTiming; start?: never; end?: never })
+  : never;
+export type AuthoredShortDefinition = Omit<ShortDefinition, "scenes" | "captions"> & {
+  visualLeadMs?: number;
+  scenes: AuthoredScene<SceneDefinition>[];
+  captions?: (CaptionCue | (Omit<CaptionCue, "startMs" | "endMs"> & {
+    timing: SemanticTiming; startMs?: never; endMs?: never;
+  }))[];
+};

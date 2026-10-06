@@ -1,32 +1,44 @@
-[curious] Two Strings can contain exactly the same value… and `==` can still return false.
+[HOOK]
+[curious] Two Strings can contain exactly the same value… [HOOK_FALSE] and `==` can still return false.
 
 [engaging] Here’s what’s actually happening.
 
+[REFERENCE_IDENTITY]
 [explanatory] For objects in Java, `==` compares references.
 
+[SAME_OBJECT]
 [slowly] It asks: are both variables pointing to the exact same object?
 
+[LITERAL_EXAMPLE]
 [explanatory] Now consider two String literals:
 
 `String a = "Java";`
 `String b = "Java";`
 
+[STRING_POOL]
 [confident] Because of the String Pool, both references can point to the same pooled object.
 
+[LITERAL_TRUE]
 [emphatic] So `a == b` is true.
 
+[NEW_STRING]
 [engaging] But now, change `b` to `new String("Java")`.
 
+[DIFFERENT_OBJECT]
 [serious] `b` refers to a different String object.
 
+[IDENTITY_FALSE]
 [emphatic] So `a == b` is false…
 
+[EQUALS_TRUE]
 [confident] but `a.equals(b)` is still true.
 
+[WHY_EQUALS]
 [curious] Why?
 
 [explanatory] Because String overrides `equals()` to compare its value.
 
+[FINAL_RULE]
 [confident] Remember this interview rule:
 
 [slowly] For objects, `==` checks identity.

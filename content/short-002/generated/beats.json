@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "audio": "audio/narration.mp3",
+  "audioHash": "2ddb5a86604b69bd2a47b6270d9b61a57f12d8ee60bc1c40e5f35c40ec583067",
+  "scriptHash": "42922a79c77651c3412330191a2e3674b15676ad8c32b0c76dbb6b8e0b5b28c6",
+  "duration": 54.595875,
+  "language": "en",
+  "beats": {
+    "HOOK": {
+      "start": 0,
+      "end": 2.74,
+      "confidence": 0.8165136516094208
+    },
+    "HOOK_FALSE": {
+      "start": 2.74,
+      "end": 7.76,
+      "confidence": 0.9142547011375427
+    },
+    "REFERENCE_IDENTITY": {
+      "start": 7.76,
+      "end": 11.5,
+      "confidence": 0.7549356281757355
+    },
+    "SAME_OBJECT": {
+      "start": 11.5,
+      "end": 16.26,
+      "confidence": 0.8919986009597778
+    },
+    "LITERAL_EXAMPLE": {
+      "start": 16.26,
+      "end": 22.26,
+      "confidence": 0.8501552879810333
+    },
+    "STRING_POOL": {
+      "start": 22.26,
+      "end": 27.16,
+      "confidence": 0.9663174390792847
+    },
+    "LITERAL_TRUE": {
+      "start": 27.16,
+      "end": 30.08,
+      "confidence": 0.9523740172386169
+    },
+    "NEW_STRING": {
+      "start": 30.08,
+      "end": 33.48,
+      "confidence": 0.8550914585590362
+    },
+    "DIFFERENT_OBJECT": {
+      "start": 33.48,
+      "end": 35.9,
+      "confidence": 0.9641076683998108
+    },
+    "IDENTITY_FALSE": {
+      "start": 35.9,
+      "end": 38.02,
+      "confidence": 0.863825935125351
+    },
+    "EQUALS_TRUE": {
+      "start": 38.02,
+      "end": 41.12,
+      "confidence": 0.9708949089050293
+    },
+    "WHY_EQUALS": {
+      "start": 41.12,
+      "end": 45.48,
+      "confidence": 0.9616290390491485
+    },
+    "FINAL_RULE": {
+      "start": 45.48,
+      "end": 54.595875,
+      "confidence": 0.9723346948623657
+    }
+  }
+}

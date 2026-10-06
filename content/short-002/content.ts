@@ -1,6 +1,6 @@
-import type { ShortDefinition } from "../../src/engine/types";
+import type { AuthoredShortDefinition } from "../../src/engine/types";
 
-export const short002Content: ShortDefinition = {
+export const short002Content: AuthoredShortDefinition = {
   id: "short-002",
   channel: "noskip-learning",
   title: "String identity vs equals()",
@@ -10,8 +10,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "hook",
       type: "hook",
-      start: 0,
-      end: 7.0,
+      timing: { from: "HOOK", until: "REFERENCE_IDENTITY" },
       kicker: "JAVA INTERVIEW",
       title: "SAME VALUE\n== CAN STILL BE FALSE",
       subtitle: "Two Strings can share the same value and still differ by identity.",
@@ -19,8 +18,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "reference",
       type: "explanation",
-      start: 7.0,
-      end: 14.8,
+      timing: { from: "REFERENCE_IDENTITY", until: "LITERAL_EXAMPLE" },
       kicker: "WHAT == MEANS",
       title: "== compares references",
       body: [
@@ -31,8 +29,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "literal-code",
       type: "code",
-      start: 14.8,
-      end: 22.5,
+      timing: { from: "LITERAL_EXAMPLE", until: "STRING_POOL" },
       kicker: "LITERAL EXAMPLE",
       code: ['String a = "Java";', 'String b = "Java";'],
       activeLine: 1,
@@ -40,8 +37,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "pool",
       type: "diagram",
-      start: 22.5,
-      end: 29.8,
+      timing: { from: "STRING_POOL", until: "LITERAL_TRUE" },
       kicker: "STRING POOL",
       nodes: [
         { label: "a", value: '"Java"' },
@@ -53,8 +49,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "literal-result",
       type: "comparison",
-      start: 29.8,
-      end: 34.5,
+      timing: { from: "LITERAL_TRUE", until: "NEW_STRING" },
       kicker: "RESULT",
       leftLabel: "a == b",
       leftValue: "TRUE",
@@ -65,8 +60,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "new-string-code",
       type: "code",
-      start: 34.5,
-      end: 41.5,
+      timing: { from: "NEW_STRING", until: "DIFFERENT_OBJECT" },
       kicker: "CHANGE B",
       code: ['String a = "Java";', 'String b = new String("Java");'],
       activeLine: 1,
@@ -74,8 +68,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "different-object",
       type: "diagram",
-      start: 41.5,
-      end: 47.3,
+      timing: { from: "DIFFERENT_OBJECT", until: "IDENTITY_FALSE" },
       kicker: "DIFFERENT OBJECTS",
       nodes: [
         { label: "a", value: '"Java"' },
@@ -87,8 +80,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "equality-contrast",
       type: "comparison",
-      start: 47.3,
-      end: 52.4,
+      timing: { from: "IDENTITY_FALSE", until: "WHY_EQUALS" },
       kicker: "RESULT",
       leftLabel: "a == b",
       leftValue: "FALSE",
@@ -99,8 +91,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "why",
       type: "explanation",
-      start: 52.4,
-      end: 53.6,
+      timing: { from: "WHY_EQUALS", until: "FINAL_RULE" },
       kicker: "WHY",
       title: "String overrides equals()",
       body: [
@@ -110,8 +101,7 @@ export const short002Content: ShortDefinition = {
     {
       id: "rule",
       type: "rule",
-      start: 53.6,
-      end: 54.595875,
+      timing: { from: "FINAL_RULE" },
       kicker: "INTERVIEW RULE",
       title: "== vs equals()",
       rows: ["==", "IDENTITY", "equals()", "LOGICAL EQUALITY"],
@@ -120,74 +110,62 @@ export const short002Content: ShortDefinition = {
   ],
   captions: [
     {
-      startMs: 0,
-      endMs: 2400,
+      timing: { from: "HOOK", until: "HOOK_FALSE" },
       text: "SAME VALUE",
       emphasis: "VALUE",
     },
     {
-      startMs: 2400,
-      endMs: 4200,
+      timing: { from: "HOOK_FALSE", until: "REFERENCE_IDENTITY" },
       text: "== CAN STILL BE FALSE",
       emphasis: "FALSE",
     },
     {
-      startMs: 7500,
-      endMs: 10600,
+      timing: { from: "REFERENCE_IDENTITY", until: "SAME_OBJECT" },
       text: "== COMPARES REFERENCES",
       emphasis: "REFERENCES",
     },
     {
-      startMs: 10600,
-      endMs: 14300,
+      timing: { from: "SAME_OBJECT", until: "LITERAL_EXAMPLE" },
       text: "SAME OBJECT?",
       emphasis: "OBJECT",
     },
     {
-      startMs: 15000,
-      endMs: 19000,
+      timing: { from: "LITERAL_EXAMPLE", until: "STRING_POOL" },
       text: "STRING LITERALS",
       emphasis: "LITERALS",
     },
     {
-      startMs: 22500,
-      endMs: 26200,
+      timing: { from: "STRING_POOL", until: "LITERAL_TRUE" },
       text: "STRING POOL",
       emphasis: "POOL",
     },
     {
-      startMs: 30000,
-      endMs: 32800,
+      timing: { from: "LITERAL_TRUE", until: "NEW_STRING" },
       text: "a == b → TRUE",
       emphasis: "TRUE",
     },
     {
-      startMs: 34300,
-      endMs: 37400,
+      timing: { from: "NEW_STRING", until: "DIFFERENT_OBJECT" },
       text: "NEW STRING OBJECT",
       emphasis: "OBJECT",
     },
     {
-      startMs: 47000,
-      endMs: 49500,
+      timing: { from: "IDENTITY_FALSE", until: "EQUALS_TRUE" },
       text: "a == b → FALSE",
       emphasis: "FALSE",
     },
     {
-      startMs: 49500,
-      endMs: 52100,
+      timing: { from: "EQUALS_TRUE", until: "WHY_EQUALS" },
       text: "a.equals(b) → TRUE",
       emphasis: "TRUE",
     },
     {
-      startMs: 52100,
-      endMs: 54000,
+      timing: { from: "WHY_EQUALS", until: "FINAL_RULE" },
       text: "STRING OVERRIDES equals()",
       emphasis: "equals()",
     },
     {
-      startMs: 54000,
-      endMs: 54595,
+      timing: { from: "FINAL_RULE" },
       text: "== IDENTITY",
       emphasis: "IDENTITY",
     },

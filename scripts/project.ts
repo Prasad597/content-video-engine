@@ -10,12 +10,13 @@ import {
 import { resolve, join, relative, isAbsolute, basename } from "node:path";
 import { pathToFileURL } from "node:url";
 import { bundle } from "@remotion/bundler";
-import type { ShortDefinition, ChannelDefinition } from "../src/engine/types";
+import type { ShortDefinition, AuthoredShortDefinition, ChannelDefinition } from "../src/engine/types";
+import { resolvePackageTiming } from "./timing";
+import { timingWebpackOverride } from "./timing-webpack";
 import {
   validateAssetPath,
   validateChannel,
   validateId,
-  validateShortDefinition,
 } from "../src/engine/validateShort";
 export const root = resolve(__dirname, "..");
 export const args = (allowed: string[]) => {
@@ -62,16 +63,19 @@ export const loadChannel = async (id: string): Promise<ChannelDefinition> => {
   if (channel.id !== id) throw new Error("Channel folder/id mismatch");
   return channel;
 };
-export const loadContentPackage = async (id: string) => {
+export const loadAuthoredPackage = async (id: string) => {
   if (id !== "_template") validateId(id);
   const directory = realpathSync(join(root, "content", id));
   const short = (
     await import(pathToFileURL(join(directory, "content.ts")).href)
-  ).default as ShortDefinition;
-  validateShortDefinition(short);
+  ).default as AuthoredShortDefinition;
   if (id !== "_template" && short.id !== id)
     throw new Error("Content folder/id mismatch");
   return { short, directory };
+};
+export const loadContentPackage = async (id: string) => {
+  const content = await loadAuthoredPackage(id);
+  return { ...content, short: resolvePackageTiming(content.short, content.directory, root) };
 };
 export const loadShort = async (id: string) =>
   (await loadContentPackage(id)).short;
@@ -108,7 +112,7 @@ export const stageAssets = (shorts: ShortDefinition[], directory: string) => {
   return directory;
 };
 export const bundleShorts = async (publicDir: string) =>
-  bundle({ entryPoint: join(root, "src/index.ts"), publicDir });
+  bundle({ entryPoint: join(root, "src/index.ts"), publicDir, webpackOverride: timingWebpackOverride });
 
 // Only remove staging directories allocated by these commands, inside this repo.
 export const cleanupStage = (directory: string) => {

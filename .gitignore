@@ -9,3 +9,9 @@ content/*/audio/
 content/*/recordings/
 content/*/output/*
 !content/*/output/.gitkeep
+tools/alignment/.venv/
+tools/alignment/models/
+tools/alignment/__pycache__/
+content/*/generated/alignment.json
+content/*/generated/alignment-input.json
+content/*/generated/benchmark.json

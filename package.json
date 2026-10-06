@@ -4,6 +4,7 @@
   "private": true,
   "description": "Reusable audio-first content video engine for Shorts",
   "scripts": {
+    "align-short": "tsx -- scripts/align-short.ts",
     "dev": "tsx -- scripts/studio.ts",
     "render": "tsx -- scripts/render-short.ts --content short-001 --channel noskip-learning",
     "render-short": "tsx -- scripts/render-short.ts",
