@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { ShortEngine } from "./engine/ShortEngine";
 import { durationFrames, FPS } from "./engine/timeline";
+import { MASTER } from "./PlatformSafeFrame";
 import {
   validateChannel,
   validateShortDefinition,
@@ -46,11 +47,11 @@ export const Root = () => (
           key={short.id}
           id={short.id}
           component={ShortEngine}
-          width={1080}
-          height={1920}
+          width={MASTER.width}
+          height={MASTER.height}
           fps={FPS}
           durationInFrames={durationFrames(short)}
-          defaultProps={{ short, channel }}
+          defaultProps={{ short, channel, showSafeZones: false }}
           calculateMetadata={({ props }) => {
             validateShortDefinition(props.short);
             validateChannel(props.channel);

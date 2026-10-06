@@ -63,8 +63,8 @@ export const BrandWatermark = ({ channel }: { channel: ChannelDefinition }) => (
   <div
     style={{
       position: "absolute",
-      left: 78,
-      top: 150,
+      left: 0,
+      top: 0,
       display: "flex",
       gap: 16,
       alignItems: "center",

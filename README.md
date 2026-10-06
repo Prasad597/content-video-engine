@@ -40,6 +40,12 @@ Local narration/effect/music paths are exact repository-relative paths under `co
 
 `npm run render` renders canonical Short 001 to `content/short-001/output/short-001.mp4`. Previous reference MP4s are not overwritten.
 
+## Cross-platform master
+
+One 1080×1920 (9:16) MP4 serves YouTube Shorts and Instagram Reels. Backgrounds and nonessential decorations stay full bleed. Shared `PlatformSafeFrame.tsx` places meaningful content within project margins: top 250, bottom 350, left 90, right 180 px (x90–900, y250–1570). Branding, scene and caption slots share this region; overflowing content is fitted within its slot. These are conservative engineering margins, **not official platform guarantees**. Review readability when authoring dense scenes.
+
+In Remotion Studio's composition input props, set `showSafeZones` to `true` to display the canvas border, shaded unsafe margins and safe rectangle; set it back to `false` to hide them. It defaults to false and normal `render-short` renders omit it. It affects only a visual overlay, never audio or timing. Cover/profile-grid cropping remains a separate future concern.
+
 ## Validation
 
 ```powershell

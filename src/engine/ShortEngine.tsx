@@ -12,12 +12,15 @@ import { BrandWatermark } from "../brand/BrandMark";
 import { GenericScene } from "../scenes/GenericScenes";
 import type { ChannelDefinition, ShortDefinition } from "./types";
 import { sceneDuration, sceneStart, secondsToFrames } from "./timeline";
+import { SafeContentLayer, SafeContentSlot, SafeZoneOverlay } from "../PlatformSafeFrame";
 export const ShortEngine = ({
   short,
   channel,
+  showSafeZones = false,
 }: {
   short: ShortDefinition;
   channel: ChannelDefinition;
+  showSafeZones?: boolean;
 }) => {
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -35,6 +38,7 @@ export const ShortEngine = ({
   } as CSSProperties;
   return (
     <AbsoluteFill style={style}>
+      <SafeContentLayer>
       <BrandWatermark channel={channel} />
       {short.scenes.map((scene) => (
         <Sequence
@@ -43,12 +47,13 @@ export const ShortEngine = ({
           from={sceneStart(scene, fps)}
           durationInFrames={sceneDuration(scene, fps)}
         >
-          <div style={{ position: "absolute", left: 78, right: 180, top: 270 }}>
+          <SafeContentSlot>
             <GenericScene scene={scene} channel={channel} />
-          </div>
+          </SafeContentSlot>
         </Sequence>
       ))}
-      <Caption cues={short.captions ?? []} />
+      <SafeContentSlot caption><Caption cues={short.captions ?? []} /></SafeContentSlot>
+      </SafeContentLayer>
       {narration && (
         <Html5Audio
           src={narration}
@@ -87,6 +92,7 @@ export const ShortEngine = ({
           }}
         />
       </div>
+      {showSafeZones && <SafeZoneOverlay />}
     </AbsoluteFill>
   );
 };

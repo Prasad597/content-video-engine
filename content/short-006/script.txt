@@ -1,0 +1,31 @@
+[HOOK]
+One million entries are inside a Java HashMap.
+
+You call get.
+
+Does Java check all one million keys?
+
+No.
+
+So how does it find yours?
+
+[HASH]
+HashMap uses the key's hashCode to help locate a bucket.
+
+[BUCKET]
+Instead of searching the whole map, it jumps toward that bucket.
+
+[COLLISION]
+But different keys can land in the same bucket.
+
+Then HashMap must identify the correct key.
+
+[KEY_CHECK]
+That's where equals comes in.
+
+[INTERVIEW_RULE]
+Remember this:
+
+hashCode helps find the bucket.
+
+equals helps find the correct key inside it.

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
 import type { CaptionCue, CodeDisplay } from "./engine/types";
 import { frameToSeconds, secondsToFrames } from "./engine/timeline";
+import { SAFE_WIDTH } from "./PlatformSafeFrame";
 
 // Colors are CSS variables supplied by the selected channel, never brand defaults.
 export const colors = {
@@ -59,10 +60,6 @@ export const Caption = ({ cues }: { cues: CaptionCue[] }) => {
   return (
     <div
       style={{
-        position: "absolute",
-        left: 78,
-        right: 180,
-        top: 1460,
         padding: "24px 28px",
         background: colors.ink,
         borderTop: `2px solid ${colors.line}`,
@@ -95,7 +92,7 @@ export const CodePanel = ({
   // Content supplies language-specific keywords; the tokenizer is domain-neutral.
   const fontSize = Math.min(
     40,
-    Math.floor(742 / (Math.max(...code.map((line) => line.length), 1) * 0.61)),
+    Math.floor((SAFE_WIDTH - 92) / (Math.max(...code.map((line) => line.length), 1) * 0.61)),
   );
   return (
     <div

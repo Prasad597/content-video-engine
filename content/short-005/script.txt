@@ -1,0 +1,44 @@
+[HOOK]
+Two threads are updating the same Java Map at the same time.
+
+Which one would you trust?
+
+HashMap?
+
+Or ConcurrentHashMap?
+
+[REVEAL]
+For concurrent access, ConcurrentHashMap is the safer choice.
+
+But why?
+
+[HASHMAP_PROBLEM]
+A regular HashMap is not thread-safe.
+
+If multiple threads modify it without proper synchronization, you can get race conditions and inconsistent results.
+
+[OBVIOUS_FIX]
+So why not just put one big synchronized lock around the HashMap?
+
+That can make access safe, but now threads may have to wait for the same lock.
+
+ConcurrentHashMap is designed specifically for concurrent access.
+
+[CONCURRENT_MAP]
+It allows multiple threads to perform many operations concurrently instead of forcing every operation through one single map-wide lock.
+
+[IMPORTANT_DETAIL]
+But don't misunderstand this.
+
+ConcurrentHashMap does not magically make a sequence of multiple operations atomic.
+
+For compound actions, use its atomic methods such as putIfAbsent, compute, or merge when appropriate.
+
+[INTERVIEW_RULE]
+Interview rule:
+
+Single-threaded use? HashMap is usually enough.
+
+Shared concurrent access?
+
+Use ConcurrentHashMap when you need its concurrency guarantees.

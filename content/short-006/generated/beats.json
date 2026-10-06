@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "audio": "audio/narration.mp3",
+  "audioHash": "ffd843dd9a6b8a37a6c1b34db8c383990dba2c2033e4a580b31542a904ee5fe4",
+  "scriptHash": "7b35ad473e30a3ebdd20e00c7c65c1eb4cee9c9899cd8db00c9df1be95fc1dcc",
+  "duration": 38.687313,
+  "language": "en",
+  "beats": {
+    "HOOK": {
+      "start": 0,
+      "end": 10.58,
+      "confidence": 0.801692171394825
+    },
+    "HASH": {
+      "start": 10.58,
+      "end": 15.96,
+      "confidence": 0.8507193431258202
+    },
+    "BUCKET": {
+      "start": 15.96,
+      "end": 20.9,
+      "confidence": 0.9890219330787658
+    },
+    "COLLISION": {
+      "start": 20.9,
+      "end": 28.18,
+      "confidence": 0.9918938279151917
+    },
+    "KEY_CHECK": {
+      "start": 28.18,
+      "end": 31.82,
+      "confidence": 0.7863385394215584
+    },
+    "INTERVIEW_RULE": {
+      "start": 31.82,
+      "end": 38.687313,
+      "confidence": 0.9218171387910843
+    }
+  }
+}

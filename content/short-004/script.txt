@@ -1,0 +1,51 @@
+[HOOK]
+Look at this Java code.
+
+We create a String containing Java.
+
+Then we call concat and add twenty-one.
+
+So what will this print?
+
+Java twenty-one?
+
+No.
+
+[IMMUTABLE_REVEAL]
+It still prints Java.
+
+Why?
+
+Because String objects in Java are immutable.
+
+[OBJECT_UNCHANGED]
+Once the String object Java is created, its value cannot be changed.
+
+[NEW_STRING]
+When concat is called, Java doesn't modify that existing String.
+
+It creates a new String containing Java twenty-one.
+
+[REFERENCE_UNCHANGED]
+But because we didn't assign that new String anywhere, our variable still points to the original Java object.
+
+[REASSIGNMENT]
+If we assign the result back to the variable, now it prints Java twenty-one.
+
+[WHY_IMMUTABLE]
+But why did Java make String immutable in the first place?
+
+[STRING_POOL]
+One major reason is that Strings are shared heavily through the String Pool.
+
+If one piece of code could modify a shared String object, other references to that same object could unexpectedly see the change.
+
+[HASH_STABILITY]
+Immutability makes sharing Strings safe and also keeps their hash value stable, which is especially important when Strings are used as HashMap keys.
+
+[INTERVIEW_RULE]
+Interview rule:
+
+A String reference can point to a different String.
+
+But the String object itself cannot be changed.

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { validateAlignmentPipeline } from "./validate-alignment";
-import { mkdtempSync, mkdirSync, existsSync, statSync } from "node:fs";
+import { mkdtempSync, mkdirSync, existsSync, statSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   getCompositions,
@@ -129,6 +129,7 @@ async function main() {
       assert.equal(composition.height, 1920);
       assert.equal(composition.fps, 30);
       assert.equal(composition.durationInFrames, durationFrames(short));
+      assert.equal(composition.props.showSafeZones, false, "Production overlay defaults off");
     }
     // Representative previews cover every content definition, even without narration.
     for (const short of shorts) {
@@ -143,6 +144,15 @@ async function main() {
           puppeteerInstance: browser,
           output: join(root, ".tmp", `${short.id}-${scene.id}.png`),
         });
+        // Same composition and timing, with an explicitly requested preview overlay.
+        await renderStill({
+          serveUrl, composition: { ...composition, props: { ...composition.props, showSafeZones: true } },
+          frame, scale: 0.5, puppeteerInstance: browser,
+          inputProps: { short, channel: await loadChannel(short.channel), showSafeZones: true },
+          output: join(root, ".tmp", `${short.id}-${scene.id}-safe.png`),
+        });
+        assert(!readFileSync(join(root, ".tmp", `${short.id}-${scene.id}.png`)).equals(
+          readFileSync(join(root, ".tmp", `${short.id}-${scene.id}-safe.png`))), "Explicit overlay changes preview pixels");
       }
     }
     const composition = compositions.find((c) => c.id === template.id)!;

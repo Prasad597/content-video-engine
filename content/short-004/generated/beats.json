@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "audio": "audio/narration.mp3",
+  "audioHash": "f4ee579f9113ac8e3fb76d71c6fdc65d6bd132f4bf24dc88df0c614c5a90201d",
+  "scriptHash": "630d7978a2ae3f7383e70ee04347c72c6834a44796bc7c73a636e4e7ff35c081",
+  "duration": 77.871,
+  "language": "en",
+  "beats": {
+    "HOOK": {
+      "start": 0,
+      "end": 10.46,
+      "confidence": 0.6600925952196122
+    },
+    "IMMUTABLE_REVEAL": {
+      "start": 10.46,
+      "end": 16.22,
+      "confidence": 0.8244501829147339
+    },
+    "OBJECT_UNCHANGED": {
+      "start": 16.22,
+      "end": 21.52,
+      "confidence": 0.9437024354934692
+    },
+    "NEW_STRING": {
+      "start": 21.52,
+      "end": 30,
+      "confidence": 0.9589718341827392
+    },
+    "REFERENCE_UNCHANGED": {
+      "start": 30,
+      "end": 37.68,
+      "confidence": 0.9238472282886505
+    },
+    "REASSIGNMENT": {
+      "start": 37.68,
+      "end": 42.8,
+      "confidence": 0.9901331067085266
+    },
+    "WHY_IMMUTABLE": {
+      "start": 42.8,
+      "end": 46.96,
+      "confidence": 0.9834792137145996
+    },
+    "STRING_POOL": {
+      "start": 46.96,
+      "end": 60.26,
+      "confidence": 0.9946511149406433
+    },
+    "HASH_STABILITY": {
+      "start": 60.26,
+      "end": 70.12,
+      "confidence": 0.968912370999654
+    },
+    "INTERVIEW_RULE": {
+      "start": 70.12,
+      "end": 77.871,
+      "confidence": 0.8286076962947846
+    }
+  }
+}
