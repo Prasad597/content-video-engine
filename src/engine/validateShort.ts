@@ -2,6 +2,8 @@ import type {
   ChannelDefinition,
   ShortDefinition,
   SceneDefinition,
+  ThumbnailDefinition,
+  PublishingDefinition,
 } from "./types";
 import { sceneDuration, secondsToFrames } from "./timeline";
 const text = (value: unknown) =>
@@ -34,6 +36,23 @@ export const validateChannel = (channel: ChannelDefinition) => {
     if (!/^#[0-9a-f]{6}$/i.test(channel.theme?.[key] ?? ""))
       throw new Error(`Invalid channel color: ${key}`);
 };
+export const validatePublishingAssets = (short: { publishing?: PublishingDefinition; thumbnail?: ThumbnailDefinition }) => {
+  const p = short.publishing;
+  if (p !== undefined && (!p || !text(p.youtube?.title) || !text(p.youtube?.description) || !text(p.instagram?.caption)))
+    throw new Error("Publishing requires a YouTube title/description and Instagram caption");
+  const t = short.thumbnail;
+  if (t === undefined) return;
+  const fits = (value: unknown, max: number) => text(value) && (value as string).length <= max && !/[\r\n]/.test(value as string);
+  if (!t || !text(t.headline) || t.headline.split("\n").length > 2 || !t.headline.split("\n").every((line) => fits(line, 26)))
+    throw new Error("Thumbnail headline needs one or two non-empty lines, at most 26 characters each");
+  if ((t.eyebrow !== undefined && !fits(t.eyebrow, 38)) || (t.subheadline !== undefined && !fits(t.subheadline, 48)))
+    throw new Error("Thumbnail eyebrow/subheadline must be short single-line text (38/48 characters)");
+  if (t.diagram) {
+    const d = t.diagram;
+    if (![d.left, d.right].every((n) => n && fits(n.label, 12) && fits(n.expression, 24) && fits(n.value, 8)) || !fits(d.destination, 28) || (d.verdict !== undefined && !fits(d.verdict, 2)))
+      throw new Error("Invalid thumbnail diagram: use short labels, expressions, values and destination");
+  }
+};
 export const validateShortDefinition = (short: ShortDefinition) => {
   if (
     !short ||
@@ -46,6 +65,7 @@ export const validateShortDefinition = (short: ShortDefinition) => {
   validateId(short.id);
   validateId(short.channel);
   validateAssetPath(short.narration);
+  validatePublishingAssets(short);
   if (!Array.isArray(short.scenes) || !short.scenes.length)
     throw new Error("At least one scene is required");
   let previous = 0;

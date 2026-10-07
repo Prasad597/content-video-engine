@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "audio": "audio/narration.mp3",
+  "audioHash": "a3c43393262856f2f4aaf9e9992e0049c477e0ae405c8ce9467b5a418e35bbd3",
+  "scriptHash": "308475dd75d7a7f809b0742c16f803ad245cc6d8ba0961b7529956a7f255657e",
+  "duration": 27.6375,
+  "language": "en",
+  "beats": {
+    "MYTH": {
+      "start": 0,
+      "end": 6.18,
+      "confidence": 0.6975858122110367
+    },
+    "BREAK": {
+      "start": 6.18,
+      "end": 10.18,
+      "confidence": 0.8398351907730103
+    },
+    "BUCKET": {
+      "start": 10.18,
+      "end": 16.12,
+      "confidence": 0.9645401537418365
+    },
+    "KEY_CHECK": {
+      "start": 16.12,
+      "end": 19.62,
+      "confidence": 0.9587424516677856
+    },
+    "RULE": {
+      "start": 19.62,
+      "end": 27.6375,
+      "confidence": 0.9760745286941528
+    }
+  }
+}

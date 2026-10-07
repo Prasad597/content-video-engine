@@ -106,6 +106,22 @@ export type SceneDefinition =
   | RuleScene
   | OutroScene;
 export type SceneType = SceneDefinition["type"];
+export type PublishingDefinition = {
+  youtube: { title: string; description: string };
+  instagram: { caption: string };
+};
+export type ThumbnailDefinition = {
+  eyebrow?: string;
+  headline: string; // Up to two short lines, separated by a newline.
+  subheadline?: string;
+  // One optional debugger-style convergence diagram, not a scene framework.
+  diagram?: {
+    left: { label: string; expression: string; value: string };
+    right: { label: string; expression: string; value: string };
+    destination: string;
+    verdict?: string;
+  };
+};
 export type ShortDefinition = {
   id: string;
   channel: string;
@@ -113,6 +129,8 @@ export type ShortDefinition = {
   topic: string;
   // Exact repository-relative asset path. Never matched by basename.
   narration: string;
+  publishing?: PublishingDefinition;
+  thumbnail?: ThumbnailDefinition;
   scenes: SceneDefinition[];
   captions?: CaptionCue[];
   audio?: {

@@ -5,6 +5,6 @@ async function main() {
   const options = args(["content"]);
   if (!options.content) throw new Error("Use --content <short-id>");
   await loadAuthoredPackage(options.content);
-  produceShort(options.content);
+  await produceShort(options.content);
 }
 main().catch(reportFailure);

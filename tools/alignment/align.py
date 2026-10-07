@@ -1,5 +1,6 @@
 """Replaceable CPU adapter. Reads normalized input; emits only the internal contract."""
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -13,6 +14,12 @@ os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 from faster_whisper import WhisperModel
 from faster_whisper.utils import download_model
 from huggingface_hub.errors import LocalEntryNotFoundError
+
+
+def json_timestamp(value):
+    # JSON has no NaN/Infinity. Null preserves missing/invalid timing for the
+    # TypeScript boundary to assess against neighbors; finite values are untouched.
+    return value if isinstance(value, (int, float)) and math.isfinite(value) else None
 
 
 def main():
@@ -34,8 +41,8 @@ def main():
     words = []
     for segment in segments:
         for word in segment.words or []:
-            words.append({"text": word.word.strip(), "start": word.start,
-                          "end": word.end, "confidence": word.probability})
+            words.append({"text": word.word.strip(), "start": json_timestamp(getattr(word, "start", None)),
+                          "end": json_timestamp(getattr(word, "end", None)), "confidence": word.probability})
     elapsed = time.perf_counter() - started
     result = {key: request[key] for key in
               ["version", "audio", "audioHash", "scriptHash", "duration", "language"]}

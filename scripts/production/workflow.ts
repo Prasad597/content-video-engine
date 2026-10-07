@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { root } from "../project";
 import { parseScript } from "../alignment";
 import { checkExistingNarration, generateNarration, type NarrationPackage } from "./narration";
+import { publishShort } from "./publishing";
 
 type Step = "typecheck" | "validate" | "align-short" | "render-short";
 export type Runner = (step: Step, id: string) => void;
@@ -34,8 +35,10 @@ export async function prepareShort(p: NarrationPackage, run: Runner = runExistin
   run("align-short", p.short.id);
   return narration;
 }
-export function produceShort(id: string, run: Runner = runExisting) {
+export async function produceShort(id: string, run: Runner = runExisting, publish = publishShort, log = console.log) {
   for (const step of ["typecheck", "validate", "render-short"] as const) run(step, id);
+  const result = await publish(id);
+  log(`\nProduction complete: ${id}\n\nVideo:\n${result.video}\n\nPublishing assets:\n${result.files.length ? result.files.join("\n") : "Skipped (not configured)."}`);
 }
 export function reportFailure(error: unknown) {
   console.error(error instanceof Error ? error.message : "Production command failed.");

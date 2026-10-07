@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, relative, isAbsolute } from "node:path";
 import { spawnSync } from "node:child_process";
 import { args, root, loadAuthoredPackage, resolveAudio } from "./project";
-import { hash, parseScript, resolveBeats, type AlignmentResult } from "./alignment";
+import { hash, parseScript, recoverWordTimestamps, resolveBeats, type AlignmentResult } from "./alignment";
 
 async function main() {
   const options = args(["content"]);
@@ -30,10 +30,14 @@ async function main() {
   console.log("Local CPU alignment: faster-whisper base.en INT8 (first run downloads model; no audio upload).");
   const result = spawnSync(python, [join(root, "tools/alignment/align.py"), input, alignmentPath, join(generated, "benchmark.json")], { stdio: "inherit" });
   if (result.status !== 0) throw new Error(`Local aligner failed: ${result.error ?? result.status}`);
-  const alignment = JSON.parse(readFileSync(alignmentPath, "utf8")) as AlignmentResult;
+  const rawAlignment = JSON.parse(readFileSync(alignmentPath, "utf8")) as AlignmentResult;
   if (hash(readFileSync(audioPath)) !== request.audioHash || parseScript(readFileSync(join(directory, "script.txt"), "utf8")).scriptHash !== request.scriptHash)
     throw new Error("Narration or script changed during alignment; rerun align-short");
+  const alignment = recoverWordTimestamps(rawAlignment);
   const beats = resolveBeats(script, alignment);
+  // Persist repaired words only after strict semantic matching succeeds. Failure
+  // leaves the adapter's original output available for diagnosis.
+  if (alignment !== rawAlignment) writeFileSync(alignmentPath, JSON.stringify(alignment, null, 2) + "\n");
   writeFileSync(join(generated, "beats.json"), JSON.stringify(beats, null, 2) + "\n");
   for (const [id, beat] of Object.entries(beats.beats))
     console.log(`${id.padEnd(22)} ${beat.start.toFixed(3)} -> ${beat.end.toFixed(3)}`);

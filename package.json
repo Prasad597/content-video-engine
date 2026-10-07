@@ -8,6 +8,7 @@
     "prepare-short": "tsx -- scripts/prepare-short.ts",
     "produce-short": "tsx -- scripts/produce-short.ts",
     "test:production": "tsx -- scripts/production.test.ts",
+    "test:publishing": "tsx -- scripts/publishing.test.ts",
     "align-short": "tsx -- scripts/align-short.ts",
     "dev": "tsx -- scripts/studio.ts",
     "render": "tsx -- scripts/render-short.ts --content short-001 --channel noskip-learning",

@@ -38,3 +38,13 @@ npm.cmd run prepare-short -- --content short-007
 Generated audio changes make the existing alignment stale; run preparation before rendering. Script editing, visual authoring and publishing remain manual.
 
 Tests: `npm.cmd run test:production` uses mocked responses and cannot spend ElevenLabs credits.
+
+## Publishing assets (optional, explicitly authored)
+
+Add `publishing: { youtube: { title, description }, instagram: { caption } }` to the existing `content.ts`. Add `thumbnail: { eyebrow?, headline, subheadline?, diagram? }` for a deterministic 1080×1920 PNG. Headlines allow up to two lines of 26 characters each; the optional diagram has `left`/`right` nodes (`label`, `expression`, `value`), a `destination`, and optional `verdict`. Short #007 demonstrates the small debugger layout.
+
+After typecheck → validate → successful MP4 rendering, `produce-short` renders the thumbnail with the existing local Remotion/font stack and writes exact UTF-8 text to `youtube-title.txt`, `youtube-description.txt`, and `instagram-caption.txt`, beside `thumbnail.png` in the package's `output/`. No AI/API calls are involved. Missing optional configuration warns and skips those artifacts, preserving legacy Shorts. Previously generated files are not deleted when configuration is removed; remove obsolete artifacts deliberately before publishing.
+
+Artifacts are staged before individual atomic replacements. Generation failure preserves existing artifacts; a filesystem failure during the replacement sequence can leave a mix of complete old/new files and fails the command. Correct the filesystem issue and rerun production before publishing. Completion is reported only after every configured artifact succeeds.
+
+Thumbnail essentials stay within the central square with inset padding; this is a conservative cover crop policy, separate from video playback safe areas, not a platform guarantee. Review the actual platform crop before uploading. `npm.cmd run test:publishing` checks metadata, failure behavior, legacy compatibility and an actual local PNG render.

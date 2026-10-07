@@ -1,0 +1,41 @@
+[HOOK]
+
+We modify two Java lists while looping through them.
+
+One crashes with an exception, while the other keeps running.
+
+Why does that happen?
+
+[FAIL_FAST]
+
+With ArrayList, the iterator is fail-fast.
+
+If the collection is structurally modified unexpectedly while you're iterating...
+
+it can throw ConcurrentModificationException.
+
+[SECOND]
+
+Now try the idea with CopyOnWriteArrayList.
+
+The loop can continue without that exception.
+
+[WHY]
+
+Why?
+
+Its iterator works over a snapshot of the array from when the iterator was created.
+
+Changes create a new copy instead of changing that snapshot underneath the iterator.
+
+[TRADEOFF]
+
+But that doesn't make it automatically better.
+
+Copying on writes has a cost.
+
+[RULE]
+
+So don't memorize fail-fast versus fail-safe as simply bad versus good.
+
+They're different iteration behaviors with different trade-offs.

@@ -1,0 +1,35 @@
+[HOOK]
+
+LinkedList should be faster for inserting elements than ArrayList.
+
+That's what we learned, right?
+
+But benchmark them...
+
+and ArrayList can still win.
+
+[WHY]
+
+Here's the catch.
+
+LinkedList insertion is cheap only after you're already at the correct node.
+
+[SEARCH]
+
+If you insert by index, LinkedList may first have to walk through the list to find that position.
+
+ArrayList can access an index directly.
+
+[REALITY]
+
+And ArrayList stores elements close together, which is generally much friendlier to the CPU cache.
+
+[RULE]
+
+So don't memorize:
+
+"Insertions? Use LinkedList."
+
+The real answer is:
+
+It depends on how you're accessing and inserting the data.

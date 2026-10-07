@@ -128,12 +128,13 @@ test("prepare generates before invoking existing alignment", async () => fixture
   await prepareShort(p, (step) => { assert.ok(existsSync(p.audio)); events.push(step); }, async (pkg) => { events.push("generate"); return generateNarration(pkg, false, settings); });
   assert.deepEqual(events, ["generate", "align-short"]);
 }));
-test("produce stops at failed typecheck/validation and preserves error", () => {
+test("produce stops at failed typecheck/validation and preserves error", async () => {
   for (const fail of ["typecheck", "validate", "none"]) {
     const steps: string[] = []; const error = new Error("original failure");
     const run: Runner = (step) => { steps.push(step); if (step === fail) throw error; };
-    if (fail === "none") produceShort("short-006", run);
-    else assert.throws(() => produceShort("short-006", run), (e) => e === error);
+    const publish = async () => ({ video: "test.mp4", files: [] as string[] });
+    if (fail === "none") await produceShort("short-006", run, publish, quiet);
+    else await assert.rejects(produceShort("short-006", run, publish, quiet), (e) => e === error);
     assert.deepEqual(steps, fail === "typecheck" ? ["typecheck"] : fail === "validate" ? ["typecheck", "validate"] : ["typecheck", "validate", "render-short"]);
   }
 });
