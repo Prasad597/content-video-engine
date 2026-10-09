@@ -1,0 +1,47 @@
+[HOOK]
+
+Six numbers. One target.
+
+Can you find the matching pair in just one pass?
+
+[CHALLENGE]
+
+Here's the array.
+
+Thirteen, four, twenty one, eight, seventeen, and six.
+
+Your target is twenty five.
+
+Which two numbers add up to twenty five?
+
+[REVEAL]
+
+It's four and twenty one!
+
+But here's the real interview trick.
+
+How do you find them without checking every pair?
+
+[WHY]
+
+Use a HashMap.
+
+For each number, subtract it from the target.
+
+That tells you which number you need.
+
+Check if you've already seen it.
+
+[FIX]
+
+When we reach twenty one, the map already contains four.
+
+Match found!
+
+And we only needed one pass.
+
+[RULE]
+
+Remember this.
+
+Two Sum becomes faster when you store what you've already seen!

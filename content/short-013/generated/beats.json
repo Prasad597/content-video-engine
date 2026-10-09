@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "audio": "audio/narration.mp3",
+  "audioHash": "6a7fa14d3d3f69b90a2d6562e65259430035f71dbd8f0a56f9e9b6f0fb737fac",
+  "scriptHash": "f114a9858aec321a66a304424b5189bfe4da92aba9e68849e8c1936811731eb4",
+  "duration": 43.46775,
+  "language": "en",
+  "beats": {
+    "HOOK": {
+      "start": 0,
+      "end": 5.385384955752213
+    },
+    "CHALLENGE": {
+      "start": 5.385384955752213,
+      "end": 14.617473451327433
+    },
+    "REVEAL": {
+      "start": 14.617473451327433,
+      "end": 22.310880530973453
+    },
+    "WHY": {
+      "start": 22.310880530973453,
+      "end": 31.542969026548672
+    },
+    "FIX": {
+      "start": 31.542969026548672,
+      "end": 38.467035398230095
+    },
+    "RULE": {
+      "start": 38.467035398230095,
+      "end": 43.46775
+    }
+  }
+}
