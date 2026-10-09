@@ -122,6 +122,14 @@ export type ThumbnailDefinition = {
     verdict?: string;
   };
 };
+export type MusicDefinition = {
+  file: string;
+  volume?: number; // Linear gain; default narration gain * 10^(-22/20).
+  fadeInSeconds?: number;
+  fadeOutSeconds?: number;
+  crossfadeSeconds?: number;
+  changes?: { sceneId: string; volume: number; transitionSeconds?: number }[];
+};
 export type ShortDefinition = {
   id: string;
   channel: string;
@@ -135,7 +143,7 @@ export type ShortDefinition = {
   captions?: CaptionCue[];
   audio?: {
     narrationVolume?: number;
-    music?: { file: string; volume: number };
+    music?: MusicDefinition;
     effects?: { file: string; at: number; duration: number; volume: number }[];
   };
 };

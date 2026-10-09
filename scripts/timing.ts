@@ -3,6 +3,11 @@ import { join, resolve, relative, isAbsolute } from "node:path";
 import type { AuthoredShortDefinition, ShortDefinition, SemanticTiming } from "../src/engine/types";
 import { validateShortDefinition } from "../src/engine/validateShort";
 import { hash, parseScript, resolveBeats, type BeatFile, type AlignmentResult } from "./alignment";
+import { verifyTimingApproval, type TimingApproval } from "./manual-timing";
+import { assertPublishableTiming } from "../src/engine/timingSafety";
+
+export const pendingEstimatedPreview = (directory: string) =>
+  existsSync(join(directory, "generated/beats.preview-estimated.json")) && !existsSync(join(directory, "generated/beats.json"));
 
 export const hasSemanticTiming = (short: AuthoredShortDefinition) =>
   short.scenes.some((s) => "timing" in s) || short.captions?.some((c) => "timing" in c);
@@ -12,6 +17,8 @@ export function assertFresh(alignment: AlignmentResult, beats: BeatFile, audioHa
     throw new Error("Narration or script changed since alignment");
 }
 export function resolveTiming(short: AuthoredShortDefinition, data?: BeatFile): ShortDefinition {
+  assertPublishableTiming(short);
+  assertPublishableTiming(data);
   if (!hasSemanticTiming(short)) {
     validateShortDefinition(short as ShortDefinition);
     return short as ShortDefinition;
@@ -72,16 +79,31 @@ export function resolveTiming(short: AuthoredShortDefinition, data?: BeatFile): 
   return resolved;
 }
 export function resolvePackageTiming(short: AuthoredShortDefinition, directory: string, root: string) {
-  if (!hasSemanticTiming(short)) return resolveTiming(short);
-  const rerun = `Run: npm.cmd run align-short -- --content ${short.id}`;
+  if (pendingEstimatedPreview(directory)) throw new Error(`${short.id}: preview-estimated timing is not publishable; measured alignment or explicit human approval required`);
+  if (!hasSemanticTiming(short) && !existsSync(join(directory, "generated/beats.preview-estimated.json")) &&
+      !existsSync(join(directory, "generated/beats.json")) && !existsSync(join(directory, "generated/manual-timing.json"))) return resolveTiming(short);
+  const rerun = existsSync(join(directory, "generated/manual-timing.json"))
+    ? "Review manual timing and explicitly approve it again; never reuse stale approval"
+    : `Run: npm.cmd run align-short -- --content ${short.id}`;
   try {
     const audio = resolve(root, short.narration);
     const rel = relative(directory, audio);
     if (rel.startsWith("..") || isAbsolute(rel)) throw new Error("Narration must belong to its content package");
+    const manualPath = join(directory, "generated/manual-timing.json");
+    if (existsSync(manualPath)) {
+      const approval: TimingApproval = JSON.parse(readFileSync(manualPath, "utf8"));
+      const beats: BeatFile = JSON.parse(readFileSync(join(directory, "generated/beats.json"), "utf8"));
+      return resolveTiming(short, verifyTimingApproval(approval, beats, {
+        script: readFileSync(join(directory, "script.txt"), "utf8"),
+        audioHash: hash(readFileSync(audio)), audio: rel.replaceAll("\\", "/"),
+      }));
+    }
     const paths = [join(directory, "generated/alignment.json"), join(directory, "generated/beats.json")];
     if (paths.some((p) => !existsSync(p))) throw new Error("Missing alignment.json or beats.json");
     const alignment: AlignmentResult = JSON.parse(readFileSync(paths[0], "utf8"));
     const beats: BeatFile = JSON.parse(readFileSync(paths[1], "utf8"));
+    assertPublishableTiming(alignment);
+    assertPublishableTiming(beats);
     const script = parseScript(readFileSync(join(directory, "script.txt"), "utf8"));
     assertFresh(alignment, beats, hash(readFileSync(audio)), script.scriptHash);
     if (alignment.audio !== rel.replaceAll("\\", "/")) throw new Error("Aligned audio path changed");

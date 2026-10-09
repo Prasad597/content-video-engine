@@ -48,6 +48,27 @@ export function validateAlignmentPipeline(root: string) {
   const hook = { ...alignment, scriptHash: hookScript.scriptHash,
     words: hookScript.text.split(" ").map((text, i) => ({ text, start: i * 0.2, end: i * 0.2 + 0.1, confidence: probabilities[i] })) };
   assert.throws(() => resolveBeats(hookScript, hook), /coverage 1.000.*confidence 0.428960 \(minimum 0.6\)/);
+  // Boundary-policy investigation: complete, unique text is not independent
+  // acoustic evidence. Do not round a near-threshold score into acceptance.
+  const nearScript = parseScript("[HOOK] Five numbers four one two.");
+  const nearProbabilities = [0.24699759483337402, 0.9729738831520081, 0.10846523940563202, 0.7219583988189697, 0.9316307306289673];
+  const near = { ...hook, scriptHash: nearScript.scriptHash,
+    words: nearScript.text.split(" ").map((text, i) => ({ ...hook.words[i], text, confidence: nearProbabilities[i] })) };
+  assert.throws(() => resolveBeats(nearScript, near), /coverage 1.000.*confidence 0.596405 \(minimum 0.6\)/);
+  const dilutedScript = parseScript("[FIRST] alpha beta gamma delta epsilon followed by several confidently recognized words at the clear ending");
+  const diluted = { ...alignment, scriptHash: dilutedScript.scriptHash,
+    words: dilutedScript.text.split(" ").map((text, i) => ({ text, start: i * 0.2, end: i * 0.2 + 0.1, confidence: i < 5 ? 0.2 : 0.99 })) };
+  assert(diluted.words.reduce((sum, w) => sum + w.confidence, 0) / diluted.words.length > 0.6);
+  assert.throws(() => resolveBeats(dilutedScript, diluted), /confidence 0.200000/);
+  // High closing/context probabilities cannot supply a missing beat opening.
+  const boundaryScript = parseScript("[FIRST] alpha beta gamma [RULE] one loop linear time constant extra space");
+  const pointBoundary = { ...alignment, scriptHash: boundaryScript.scriptHash,
+    words: boundaryScript.text.split(" ").map((text, i) => ({ text, start: i * 0.2, end: i * 0.2 + 0.1, confidence: 0.99 })) };
+  pointBoundary.words[3].end = pointBoundary.words[3].start;
+  assert.throws(() => resolveBeats(boundaryScript, recoverWordTimestamps(pointBoundary, () => {})), /semantic beat RULE.*opening word unavailable/);
+  const reversedText = { ...alignment,
+    words: [...alignment.words.slice(3), ...alignment.words.slice(0, 3)].map((w, i) => ({ ...w, start: i + 0.5, end: i + 0.9 })) };
+  assert.throws(() => resolveBeats(script, reversedText), /Could not reliably align/);
   assert.throws(() => assertFresh(alignment, beats, hash("different audio"), script.scriptHash), /changed/);
   assert.throws(() => assertFresh(alignment, beats, hash(audio), hash("different script")), /changed/);
   const authored: AuthoredShortDefinition = {

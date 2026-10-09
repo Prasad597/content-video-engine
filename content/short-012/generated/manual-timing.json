@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "source": "human-reviewed",
+  "scriptFileHash": "5203614a659fa92de11c9289546f95b0037c6c16224112de121c46b0e5dac403",
+  "timing": {
+    "version": 1,
+    "audio": "audio/narration.mp3",
+    "audioHash": "75d4e81fe0e75ae53b467ec2f34f7f45c9c2d1b4ba6be173d5204795a0c17377",
+    "scriptHash": "378560b5763f50e41a7ef1fc38bdfcb59eaf2034ade603fc84935a1092a9d289",
+    "duration": 36.519125,
+    "language": "en",
+    "beats": {
+      "HOOK": {
+        "start": 0,
+        "end": 6.296400862068966
+      },
+      "CHALLENGE": {
+        "start": 6.296400862068966,
+        "end": 13.012561781609197
+      },
+      "REVEAL": {
+        "start": 13.012561781609197,
+        "end": 20.14848275862069
+      },
+      "WHY": {
+        "start": 20.14848275862069,
+        "end": 30.22272413793104
+      },
+      "FIX": {
+        "start": 30.22272413793104,
+        "end": 32.74128448275862
+      },
+      "RULE": {
+        "start": 32.74128448275862,
+        "end": 36.519125
+      }
+    }
+  },
+  "approvedBy": "Raghavendra",
+  "approvedAt": "2026-10-08T17:01:32.311Z"
+}

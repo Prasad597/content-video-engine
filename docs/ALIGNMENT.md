@@ -1,5 +1,33 @@
 # Local audio timing
 
+For explicitly non-publishable pacing previews after strict alignment failure,
+see [preview-estimated commands and safety](PREVIEW_ESTIMATED.md). Normal alignment
+thresholds and automatic/manual integrity checks remain unchanged.
+
+## Explicit human-reviewed timing
+
+Automatic alignment is unchanged. When a person has listened and approved all
+boundaries, `npm.cmd run approve-timing -- --content <id> --proposal <review.json>
+--approve true --reviewer <name>` validates a `manual-proposal` before writing
+`generated/manual-timing.json` and the existing `generated/beats.json` format.
+Never run this command on unapproved forced-alignment estimates.
+
+The proposal contains `version: 1`, `source: "manual-proposal"`, `scriptFileHash`
+(SHA-256 of exact script text), and `timing` (the existing BeatFile without
+confidence values). All script markers must occur exactly once in script order,
+with positive contiguous intervals bounded by measured audio duration. The final
+end equals that duration. The command checks the current audio/script hashes.
+
+The approval records reviewer, date, and the exact approved timing. The loader
+rejects stale audio/script, changed beats, or invalid intervals. Manual provenance
+is an explicit local attestation, not ASR confidence or an authentication system.
+Rendering never approves proposals. Numeric Shorts and automatic alignment retain
+their existing behavior. A manual record takes precedence and fails closed if
+inconsistent; deliberately remove it when returning a package to automatic timing.
+Two file replacements are not a filesystem transaction: interruption between them
+causes an integrity failure, requiring the approval command to be rerun.
+Run `npm.cmd run test:manual-timing` for focused approval/integrity regressions.
+
 Decision before model download: faster-whisper 1.2.1, English base.en, CPU INT8, four threads. The model is approximately 145 MB; dependency wheels approximately 85 MB. The reviewed dependency list has no PyTorch or NVIDIA packages. WhisperX adds a second alignment model and a larger stack; whisper.cpp is also CPU-capable but would add a native toolchain/binary installation here. Start with base.en and stop if semantic anchors are unreliable rather than silently scaling up.
 
 References: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), [model files](https://huggingface.co/Systran/faster-whisper-base.en/tree/main).

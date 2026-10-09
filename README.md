@@ -26,6 +26,9 @@ A channel is a default-exported `ChannelDefinition` at `channels/<id>/index.ts`.
 
 ## Content convention
 
+Failed alignment can produce an explicit, watermarked timing-review preview:
+[preview-estimated workflow](docs/PREVIEW_ESTIMATED.md). It cannot be used for production.
+
 Every `content/<id>/content.ts` default-exports one `ShortDefinition` (numeric timing) or `AuthoredShortDefinition` (semantic timing) from `src/engine/types.ts`. Directory and content IDs must match (the starter folder `_template` is the exception). The canonical starter is `content/_template/content.ts`; it contains no programming-specific lesson.
 
 Legacy `start`/`end` are absolute narration seconds; reveal/node/row/step times are scene-local seconds. Legacy caption times are absolute milliseconds. Times must be finite and scenes contiguous. Duration follows the last scene. See `docs/VOICE_WORKFLOW.md`.
@@ -33,6 +36,9 @@ Legacy `start`/`end` are absolute narration seconds; reveal/node/row/step times 
 For measured audio timing, annotate `script.txt` with `[SEMANTIC_MARKERS]`, set up the isolated CPU aligner once, then run `npm.cmd run align-short -- --content short-002`. Scenes and captions can use `timing: { from: "STRING_POOL", until: "LITERAL_TRUE" }`. The loader resolves these to numeric times before rendering. Missing/stale alignment fails with a preparation command; rendering never invokes a speech model. See [local alignment setup and contract](docs/ALIGNMENT.md).
 
 Local narration/effect/music paths are exact repository-relative paths under `content/` or `public/`. They are validated and staged for the renderer; identical basenames in different folders cannot collide. WAV, MP3, M4A and OGG are supported. Missing audio produces a silent preview with a terminal warning, not a viewer-facing error banner. Malformed paths fail validation. Optional audio gains and SFX cues are part of the same content definition.
+
+Optional instrumental music supports smooth fades, crossfaded loops, scene-linked
+gain changes and conservative mix headroom. See [local music setup](docs/MUSIC.md).
 
 ## Existing content
 

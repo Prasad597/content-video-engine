@@ -1,0 +1,49 @@
+[HOOK]
+
+Two threads insert five thousand entries each.
+
+Expected size?
+
+Ten thousand.
+
+No exception is thrown.
+
+But the final size can be less than ten thousand.
+
+Where did the entries go?
+
+[SETUP]
+
+Both threads are writing to the same HashMap.
+
+And HashMap does not make those writes thread-safe.
+
+[COLLISION]
+
+The problem isn't just normal hash collisions.
+
+Concurrent writes can interfere while the map is changing its internal state.
+
+[RESULT]
+
+So both threads can finish...
+
+while the final map does not reflect every write the way you expected.
+
+[FIX]
+
+If multiple threads need to update the same map...
+
+use the right concurrency strategy.
+
+For example, ConcurrentHashMap is designed for concurrent access.
+
+[RULE]
+
+Remember:
+
+No exception does not mean thread-safe.
+
+With shared mutable state...
+
+correctness must be designed.

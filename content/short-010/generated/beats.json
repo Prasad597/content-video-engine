@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "audio": "audio/narration.mp3",
+  "audioHash": "b00398cf63c31170d7b7b2fcc9407e71e302864d5f3db58988f167fb83607b9c",
+  "scriptHash": "f1ebcfa33830f665ff35db950480ac9c1b04c3004699b7ab5975a96fb3514194",
+  "duration": 46.367313,
+  "language": "en",
+  "beats": {
+    "HOOK": {
+      "start": 0,
+      "end": 10.82,
+      "confidence": 0.6242494933307171
+    },
+    "SETUP": {
+      "start": 10.82,
+      "end": 16.72,
+      "confidence": 0.9194882154464722
+    },
+    "COLLISION": {
+      "start": 16.72,
+      "end": 23.76,
+      "confidence": 0.8233262637630105
+    },
+    "RESULT": {
+      "start": 23.76,
+      "end": 30.24,
+      "confidence": 0.9828363060951233
+    },
+    "FIX": {
+      "start": 30.24,
+      "end": 39.38,
+      "confidence": 0.9831758856773376
+    },
+    "RULE": {
+      "start": 39.38,
+      "end": 46.367313,
+      "confidence": 0.9860188245773316
+    }
+  }
+}

@@ -1,0 +1,35 @@
+[HOOK]
+Your interviewer adds one Java keyword and says, “Bug fixed!”
+
+Would you approve this code?
+
+[CHALLENGE]
+The variable is volatile.
+
+And the code simply says, count plus plus.
+
+Looks thread-safe, right?
+
+[REVEAL]
+Not quite!
+
+Volatile makes updates visible across threads.
+
+But count plus plus is not one atomic operation.
+
+[WHY]
+Java must read the value, increment it, and write it back.
+
+Another thread can interfere between those steps.
+
+And that's how updates get lost.
+
+[FIX]
+The fix?
+
+Use AtomicInteger with incrementAndGet.
+
+[RULE]
+Remember this interview rule.
+
+Volatile guarantees visibility, not atomicity!

@@ -2,17 +2,21 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, relative, isAbsolute } from "node:path";
 import { spawnSync } from "node:child_process";
 import { args, root, loadAuthoredPackage, resolveAudio } from "./project";
-import { hash, parseScript, recoverWordTimestamps, resolveBeats, type AlignmentResult } from "./alignment";
+import { hash, LowConfidenceAlignmentError, parseScript, recoverWordTimestamps, resolveBeats, type AlignmentResult } from "./alignment";
+import { estimateTiming, writeEstimatedTiming } from "./preview-timing";
 
 async function main() {
-  const options = args(["content"]);
+  const options = args(["content", "preview-estimated"]);
+  if (options["preview-estimated"] !== undefined && options["preview-estimated"] !== "true") throw new Error("Use --preview-estimated true; flags require key/value arguments");
+  const preview = options["preview-estimated"] === "true";
   if (!options.content) throw new Error("Use --content <folder-id>");
   const { short, directory } = await loadAuthoredPackage(options.content);
   const audioPath = resolveAudio(short.narration);
   if (!existsSync(audioPath)) throw new Error(`Missing authoritative narration: ${audioPath}`);
   const audio = relative(directory, audioPath).replaceAll("\\", "/");
   if (audio.startsWith("..") || isAbsolute(audio)) throw new Error("Alignment narration must belong to its content package");
-  const script = parseScript(readFileSync(join(directory, "script.txt"), "utf8"));
+  const scriptText = readFileSync(join(directory, "script.txt"), "utf8");
+  const script = parseScript(scriptText);
   const python = join(root, "tools/alignment/.venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
   if (!existsSync(python)) throw new Error("Set up tools/alignment/.venv first; see docs/ALIGNMENT.md");
   const probe = process.platform === "win32"
@@ -24,17 +28,30 @@ async function main() {
   mkdirSync(generated, { recursive: true });
   const request = { version: 1, audio, audioPath, audioHash: hash(readFileSync(audioPath)),
     scriptHash: script.scriptHash, duration, language: "en", text: script.text };
-  const input = join(generated, "alignment-input.json");
-  const alignmentPath = join(generated, "alignment.json");
+  const work = preview ? join(generated, "preview-work") : generated;
+  mkdirSync(work, { recursive: true });
+  const input = join(work, "alignment-input.json");
+  const alignmentPath = join(work, "alignment.json");
   writeFileSync(input, JSON.stringify(request, null, 2));
   console.log("Local CPU alignment: faster-whisper base.en INT8 (first run downloads model; no audio upload).");
-  const result = spawnSync(python, [join(root, "tools/alignment/align.py"), input, alignmentPath, join(generated, "benchmark.json")], { stdio: "inherit" });
+  const result = spawnSync(python, [join(root, "tools/alignment/align.py"), input, alignmentPath, join(work, "benchmark.json")], { stdio: "inherit" });
   if (result.status !== 0) throw new Error(`Local aligner failed: ${result.error ?? result.status}`);
   const rawAlignment = JSON.parse(readFileSync(alignmentPath, "utf8")) as AlignmentResult;
   if (hash(readFileSync(audioPath)) !== request.audioHash || parseScript(readFileSync(join(directory, "script.txt"), "utf8")).scriptHash !== request.scriptHash)
     throw new Error("Narration or script changed during alignment; rerun align-short");
-  const alignment = recoverWordTimestamps(rawAlignment);
-  const beats = resolveBeats(script, alignment);
+  let alignment: AlignmentResult, beats;
+  try {
+    alignment = recoverWordTimestamps(rawAlignment);
+    beats = resolveBeats(script, alignment);
+  } catch (error) {
+    if (!preview || !(error instanceof LowConfidenceAlignmentError)) throw error;
+    const estimated = estimateTiming({ script: scriptText, audio, audioHash: request.audioHash }, duration, (error as Error).message);
+    writeEstimatedTiming(generated, estimated);
+    console.warn(`PREVIEW ONLY — NOT PUBLISHABLE. ${estimated.reason}`);
+    for (const [id, beat] of Object.entries(estimated.timing.beats)) console.log(`${id}: ${beat.start.toFixed(3)} -> ${beat.end.toFixed(3)} (ESTIMATED)`);
+    return;
+  }
+  if (preview) { console.log("Strict measured alignment passed. No canonical files changed; run normal align-short to generate measured artifacts."); return; }
   // Persist repaired words only after strict semantic matching succeeds. Failure
   // leaves the adapter's original output available for diagnosis.
   if (alignment !== rawAlignment) writeFileSync(alignmentPath, JSON.stringify(alignment, null, 2) + "\n");

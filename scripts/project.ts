@@ -11,8 +11,9 @@ import { resolve, join, relative, isAbsolute, basename } from "node:path";
 import { pathToFileURL } from "node:url";
 import { bundle } from "@remotion/bundler";
 import type { ShortDefinition, AuthoredShortDefinition, ChannelDefinition } from "../src/engine/types";
-import { resolvePackageTiming } from "./timing";
+import { resolvePackageTiming, pendingEstimatedPreview } from "./timing";
 import { timingWebpackOverride } from "./timing-webpack";
+import { stageMusic } from "./music";
 import {
   validateAssetPath,
   validateChannel,
@@ -53,6 +54,11 @@ export const listContent = () =>
         existsSync(join(root, "content", e.name, "content.ts")),
     )
     .map((e) => e.name)
+    .filter((id) => {
+      if (!pendingEstimatedPreview(join(root, "content", id))) return true;
+      console.warn(`${id}: excluded from production catalog (pending estimated timing review)`);
+      return false;
+    })
     .sort();
 export const loadChannel = async (id: string): Promise<ChannelDefinition> => {
   validateId(id);
@@ -109,10 +115,11 @@ export const stageAssets = (shorts: ShortDefinition[], directory: string) => {
     mkdirSync(resolve(target, ".."), { recursive: true });
     copyFileSync(source, target);
   }
+  for (const short of shorts) stageMusic(short, directory, root, resolveAudio);
   return directory;
 };
-export const bundleShorts = async (publicDir: string) =>
-  bundle({ entryPoint: join(root, "src/index.ts"), publicDir, webpackOverride: timingWebpackOverride });
+export const bundleShorts = async (publicDir: string, estimatedPreview = false) =>
+  bundle({ entryPoint: join(root, estimatedPreview ? "src/preview/index.tsx" : "src/index.ts"), publicDir, webpackOverride: timingWebpackOverride });
 
 // Only remove staging directories allocated by these commands, inside this repo.
 export const cleanupStage = (directory: string) => {

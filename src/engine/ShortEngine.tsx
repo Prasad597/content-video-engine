@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import {
   AbsoluteFill,
-  Html5Audio,
   Sequence,
   useCurrentFrame,
   useVideoConfig,
@@ -11,7 +10,8 @@ import { Caption } from "../components";
 import { BrandWatermark } from "../brand/BrandMark";
 import { GenericScene } from "../scenes/GenericScenes";
 import type { ChannelDefinition, ShortDefinition } from "./types";
-import { sceneDuration, sceneStart, secondsToFrames } from "./timeline";
+import { sceneDuration, sceneStart } from "./timeline";
+import { ShortAudio } from "./ShortAudio";
 import { SafeContentLayer, SafeContentSlot, SafeZoneOverlay } from "../PlatformSafeFrame";
 export const ShortEngine = ({
   short,
@@ -26,8 +26,6 @@ export const ShortEngine = ({
   const frame = useCurrentFrame();
   const files = getStaticFiles();
   const asset = (name: string) => files.find((file) => file.name === name)?.src;
-  const narration = asset(short.narration);
-  const music = short.audio?.music;
   const style = {
     ...Object.fromEntries(
       Object.entries(channel.theme).map(([key, value]) => [`--${key}`, value]),
@@ -54,26 +52,7 @@ export const ShortEngine = ({
       ))}
       <SafeContentSlot caption><Caption cues={short.captions ?? []} /></SafeContentSlot>
       </SafeContentLayer>
-      {narration && (
-        <Html5Audio
-          src={narration}
-          volume={short.audio?.narrationVolume ?? 1}
-        />
-      )}
-      {music && music.volume > 0 && asset(music.file) && (
-        <Html5Audio src={asset(music.file)!} volume={music.volume} loop />
-      )}
-      {short.audio?.effects?.map((effect, i) =>
-        asset(effect.file) ? (
-          <Sequence
-            key={i}
-            from={secondsToFrames(effect.at, fps)}
-            durationInFrames={secondsToFrames(effect.duration, fps)}
-          >
-            <Html5Audio src={asset(effect.file)!} volume={effect.volume} />
-          </Sequence>
-        ) : null,
-      )}
+      <ShortAudio short={short} asset={asset} fps={fps} />
       <div
         style={{
           position: "absolute",

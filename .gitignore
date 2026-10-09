@@ -20,3 +20,6 @@ tools/alignment/__pycache__/
 content/*/generated/alignment.json
 content/*/generated/alignment-input.json
 content/*/generated/benchmark.json
+content/*/generated/preview-work/
+content/*/generated/beats.preview-estimated.json
+content/*/generated/.beats.preview-estimated.json.*.tmp

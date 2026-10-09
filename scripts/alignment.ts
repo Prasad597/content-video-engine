@@ -8,6 +8,7 @@ export type AlignmentResult = {
 export type BeatFile = Omit<AlignmentResult, "words"> & {
   beats: Record<string, { start: number; end: number; confidence?: number }>;
 };
+export class LowConfidenceAlignmentError extends Error {}
 export const hash = (input: string | Buffer) => createHash("sha256").update(input).digest("hex");
 export const tokens = (text: string) =>
   text.normalize("NFKC").toLowerCase().replace(/[’']/g, "").match(/[\p{L}\p{N}]+/gu) ?? [];
@@ -161,16 +162,21 @@ export function resolveBeats(script: ReturnType<typeof parseScript>, a: Alignmen
     const anchorWords = anchor.filter((i): i is number => i !== undefined).map((i) => a.words[i]);
     const probabilities = anchorWords.flatMap((w) => w.confidence === undefined ? [] : [w.confidence]);
     const confidence = probabilities.length ? probabilities.reduce((x, y) => x + y, 0) / probabilities.length : undefined;
-    if (first === undefined || present.length / indices.length < 0.7 ||
-        anchorWords.length < Math.min(3, anchor.length) ||
-        (confidence !== undefined && confidence < 0.6) ||
-        anchorWords.at(-1)!.end - anchorWords[0].start > 5)
-      throw new Error(`Could not reliably align semantic beat ${section.id}. Measured text coverage ${(present.length / indices.length).toFixed(3)} (minimum 0.7); opening word ${first === undefined ? "unavailable" : "measured"}; anchor words ${anchorWords.length}/${Math.min(3, anchor.length)} required; confidence ${confidence === undefined ? "unavailable" : confidence.toFixed(6) + " (minimum 0.6)"}. Check script/audio wording and recognized words; no guessed timing was written.`);
+    const coverage = present.length / indices.length;
     const candidates = new Set(heard.flatMap((word, j) =>
       word.text === section.words[0] && prefix[offset][j] + 1 + dp[offset + 1][j + 1] === dp[0][0]
         ? [word.index] : []));
     if (candidates.size > 1)
       throw new Error(`Ambiguous semantic beat ${section.id}: equally optimal opening-word candidates at ${[...candidates].slice(0, 5).map((i) => `${a.words[i].start.toFixed(3)}s (word ${i})`).join(", ")}${candidates.size > 5 ? ", …" : ""}. Text order does not uniquely establish this boundary; no guessed timing was written.`);
+    const sufficientEvidence = first !== undefined && coverage >= 0.7 &&
+      anchorWords.length >= Math.min(3, anchor.length) &&
+      anchorWords.at(-1)!.end - anchorWords[0].start <= 5;
+    if (!sufficientEvidence || (confidence !== undefined && confidence < 0.6)) {
+      const message = `Could not reliably align semantic beat ${section.id}. Measured text coverage ${coverage.toFixed(3)} (minimum 0.7); opening word ${first === undefined ? "unavailable" : "measured"}; anchor words ${anchorWords.length}/${Math.min(3, anchor.length)} required; confidence ${confidence === undefined ? "unavailable" : confidence.toFixed(6) + " (minimum 0.6)"}. Check script/audio wording and recognized words; no guessed timing was written.`;
+      if (sufficientEvidence && confidence !== undefined && confidence < 0.6)
+        throw new LowConfidenceAlignmentError(message);
+      throw new Error(message);
+    }
     beats[section.id] = { start: a.words[first].start, end: a.duration,
       ...(confidence === undefined ? {} : { confidence }) };
     offset += section.words.length;

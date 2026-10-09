@@ -5,8 +5,12 @@ module.exports = function () {
   const root = resolve(__dirname, "..");
   delete require.cache[this.resourcePath];
   const authored = require(this.resourcePath).default;
-  const { resolvePackageTiming, hasSemanticTiming } = require("./timing.ts");
+  const { resolvePackageTiming, hasSemanticTiming, pendingEstimatedPreview } = require("./timing.ts");
   const directory = dirname(this.resourcePath);
+  this.addDependency(join(directory, "generated/beats.preview-estimated.json"));
+  this.addDependency(join(directory, "generated/manual-timing.json"));
+  this.addDependency(join(directory, "generated/beats.json"));
+  if (pendingEstimatedPreview(directory)) return "export default null;";
   if (hasSemanticTiming(authored)) {
     for (const file of ["script.txt", "generated/beats.json", "generated/alignment.json"])
       this.addDependency(join(directory, file));

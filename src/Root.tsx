@@ -35,7 +35,8 @@ const channels = Object.fromEntries(
 const shorts = contentFiles
   .keys()
   .sort()
-  .map((key) => contentFiles(key).default as ShortDefinition);
+  .map((key) => contentFiles(key).default as ShortDefinition)
+  .filter((short) => short !== null);
 export const Root = () => (
   <>
     {shorts.map((short) => {

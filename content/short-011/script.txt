@@ -1,0 +1,51 @@
+[HOOK]
+
+Five numbers.
+
+Four, one, two, one, two.
+
+Every number appears twice, except one.
+
+Find that number.
+
+But no HashMap. No sorting.
+
+And only constant extra space.
+
+Can you solve it?
+
+[REVEAL]
+
+Here's the shortcut.
+
+Use XOR.
+
+XOR every number in the array.
+
+[WHY]
+
+A number XOR itself becomes zero.
+
+And zero XOR any number gives that number back.
+
+So duplicate pairs cancel each other.
+
+[RESULT]
+
+One XOR one becomes zero.
+
+Two XOR two becomes zero.
+
+Only four remains.
+
+[RULE]
+
+One loop.
+
+Linear time.
+
+Constant extra space.
+
+Sometimes the trick isn't a data structure.
+
+It's an operation.

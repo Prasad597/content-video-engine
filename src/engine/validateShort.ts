@@ -6,6 +6,7 @@ import type {
   PublishingDefinition,
 } from "./types";
 import { sceneDuration, secondsToFrames } from "./timeline";
+import { assertPublishableTiming } from "./timingSafety";
 const text = (value: unknown) =>
   typeof value === "string" && value.trim().length > 0;
 export const validateId = (id: string) => {
@@ -37,6 +38,7 @@ export const validateChannel = (channel: ChannelDefinition) => {
       throw new Error(`Invalid channel color: ${key}`);
 };
 export const validatePublishingAssets = (short: { publishing?: PublishingDefinition; thumbnail?: ThumbnailDefinition }) => {
+  assertPublishableTiming(short);
   const p = short.publishing;
   if (p !== undefined && (!p || !text(p.youtube?.title) || !text(p.youtube?.description) || !text(p.instagram?.caption)))
     throw new Error("Publishing requires a YouTube title/description and Instagram caption");
@@ -233,7 +235,21 @@ export const validateShortDefinition = (short: ShortDefinition) => {
     volume(short.audio.narrationVolume);
   if (short.audio?.music) {
     validateAssetPath(short.audio.music.file);
-    volume(short.audio.music.volume);
+    const music = short.audio.music;
+    if (music.volume !== undefined) volume(music.volume);
+    for (const fade of [music.fadeInSeconds ?? 0.5, music.fadeOutSeconds ?? 0.8])
+      assert(Number.isFinite(fade) && fade > 0 && fade <= previous, "Music fades must be positive and within video duration");
+    if (music.crossfadeSeconds !== undefined)
+      assert(Number.isFinite(music.crossfadeSeconds) && music.crossfadeSeconds > 0 && music.crossfadeSeconds <= 2, "Music crossfade must be >0 and <=2 seconds");
+    let changeEnd = -1;
+    for (const change of music.changes ?? []) {
+      const scene = short.scenes.find((s) => s.id === change.sceneId);
+      const ramp = change.transitionSeconds ?? 0.5;
+      volume(change.volume);
+      assert(scene && Number.isFinite(ramp) && ramp >= 0.1 && scene.start >= changeEnd && scene.start + ramp <= previous,
+        "Music changes require ordered existing scenes, nonoverlapping transitions >=0.1s, within video duration");
+      changeEnd = scene!.start + ramp;
+    }
   }
   for (const cue of short.audio?.effects ?? []) {
     validateAssetPath(cue.file);
